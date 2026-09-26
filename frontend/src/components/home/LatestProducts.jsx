@@ -13,7 +13,7 @@ const LatestProducts = () => {
       const timeB = b.createdAt ? new Date(b.createdAt).getTime() : (typeof b.id === 'number' && b.id > 100000 ? b.id : 0);
       return timeB - timeA;
     })
-    .slice(0, 8); // Display top 8 latest items
+    .slice(0, 16); // Display up to 16 latest items
 
   if (latestProducts.length === 0) return null;
 

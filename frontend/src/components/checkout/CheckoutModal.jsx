@@ -304,7 +304,7 @@ const CheckoutModal = () => {
           </div>
         ) : (
           /* --- Flipkart 4-Step Accordion Checkout --- */
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '16px', padding: '16px' }}>
+          <div className="fk-checkout-grid">
             
             {/* Left 4-Step Accordion */}
             <div className="fk-checkout-accordion" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -338,14 +338,14 @@ const CheckoutModal = () => {
 
                 {activeStep === 1 && (
                   <div style={{ padding: '20px' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                    <div className="fk-form-row">
                       <div>
                         <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#878787', marginBottom: '4px' }}>Name</label>
                         <input
                           type="text"
                           value={name}
                           onChange={(e) => setName(e.target.value)}
-                          style={{ width: '100%', padding: '10px', border: '1px solid #e0e0e0', borderRadius: '2px', fontSize: '0.88rem' }}
+                          style={{ width: '100%', padding: '10px', border: '1px solid #e0e0e0', borderRadius: '2px', fontSize: '0.88rem', boxSizing: 'border-box' }}
                         />
                       </div>
                       <div>
@@ -354,7 +354,7 @@ const CheckoutModal = () => {
                           type="text"
                           value={phone}
                           onChange={(e) => setPhone(e.target.value)}
-                          style={{ width: '100%', padding: '10px', border: '1px solid #e0e0e0', borderRadius: '2px', fontSize: '0.88rem' }}
+                          style={{ width: '100%', padding: '10px', border: '1px solid #e0e0e0', borderRadius: '2px', fontSize: '0.88rem', boxSizing: 'border-box' }}
                         />
                       </div>
                     </div>
@@ -398,7 +398,7 @@ const CheckoutModal = () => {
 
                 {activeStep === 2 && (
                   <div style={{ padding: '20px' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+                    <div className="fk-form-row">
                       <div>
                         <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#878787', marginBottom: '4px' }}>Full Name *</label>
                         <input
@@ -406,7 +406,7 @@ const CheckoutModal = () => {
                           required
                           value={name}
                           onChange={(e) => setName(e.target.value)}
-                          style={{ width: '100%', padding: '9px 12px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '0.86rem' }}
+                          style={{ width: '100%', padding: '9px 12px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '0.86rem', boxSizing: 'border-box' }}
                         />
                       </div>
                       <div>
@@ -416,12 +416,12 @@ const CheckoutModal = () => {
                           required
                           value={phone}
                           onChange={(e) => setPhone(e.target.value)}
-                          style={{ width: '100%', padding: '9px 12px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '0.86rem' }}
+                          style={{ width: '100%', padding: '9px 12px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '0.86rem', boxSizing: 'border-box' }}
                         />
                       </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+                    <div className="fk-form-row">
                       <div>
                         <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#878787', marginBottom: '4px' }}>Pincode *</label>
                         <input
@@ -430,7 +430,7 @@ const CheckoutModal = () => {
                           required
                           value={pincode}
                           onChange={(e) => setPincode(e.target.value)}
-                          style={{ width: '100%', padding: '9px 12px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '0.86rem' }}
+                          style={{ width: '100%', padding: '9px 12px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '0.86rem', boxSizing: 'border-box' }}
                         />
                       </div>
                       <div>
@@ -439,7 +439,7 @@ const CheckoutModal = () => {
                           type="text"
                           value={landmark}
                           onChange={(e) => setLandmark(e.target.value)}
-                          style={{ width: '100%', padding: '9px 12px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '0.86rem' }}
+                          style={{ width: '100%', padding: '9px 12px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '0.86rem', boxSizing: 'border-box' }}
                         />
                       </div>
                     </div>
@@ -451,11 +451,11 @@ const CheckoutModal = () => {
                         required
                         value={street}
                         onChange={(e) => setStreet(e.target.value)}
-                        style={{ width: '100%', padding: '9px 12px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '0.86rem' }}
+                        style={{ width: '100%', padding: '9px 12px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '0.86rem', boxSizing: 'border-box' }}
                       />
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+                    <div className="fk-form-row">
                       <div>
                         <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#878787', marginBottom: '4px' }}>City / District / Town *</label>
                         <input
@@ -463,7 +463,7 @@ const CheckoutModal = () => {
                           required
                           value={city}
                           onChange={(e) => setCity(e.target.value)}
-                          style={{ width: '100%', padding: '9px 12px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '0.86rem' }}
+                          style={{ width: '100%', padding: '9px 12px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '0.86rem', boxSizing: 'border-box' }}
                         />
                       </div>
                       <div>
@@ -473,13 +473,13 @@ const CheckoutModal = () => {
                           required
                           value={state}
                           onChange={(e) => setState(e.target.value)}
-                          style={{ width: '100%', padding: '9px 12px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '0.86rem' }}
+                          style={{ width: '100%', padding: '9px 12px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '0.86rem', boxSizing: 'border-box' }}
                         />
                       </div>
                     </div>
 
                     {/* Address Type */}
-                    <div style={{ display: 'flex', gap: '20px', alignItems: 'center', marginBottom: '18px' }}>
+                    <div className="fk-address-type-row" style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '18px' }}>
                       <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#878787' }}>Address Type:</span>
                       <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', cursor: 'pointer' }}>
                         <input
@@ -694,7 +694,7 @@ const CheckoutModal = () => {
                     </div>
 
                     {/* Submit Confirmation */}
-                    <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className="fk-pay-actions" style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px' }}>
                       <div style={{ fontSize: '1.1rem', color: '#212121' }}>
                         Total Payable: <strong>₹{Math.round(finalTotal).toLocaleString()}</strong>
                       </div>

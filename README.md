@@ -2,7 +2,7 @@
 
 This project has been converted into a full-stack **React** application with separate **`backend/`** and **`frontend/`** folders, maintaining 100% of the original visual design, styles (`style.css` and `admin.css`), and functionality.
 
-> 📖 **फ़ाइल व कोड बदलने की पूरी गाइड (Hindi/Hinglish)**: [CODE_STRUCTURE_GUIDE.md](file:///d:/PRETUTE-Premium-E-Commerce-Platform/CODE_STRUCTURE_GUIDE.md) देखें। इसमें सभी CSS, HTML/JSX, Admin Panel, Products और Backend फ़ाइल्स की पूरी जानकारी दी गई है।
+> 📖 **Code Structure & File Editing Guide**: See [CODE_STRUCTURE_GUIDE.md](file:///d:/PRETUTE-Premium-E-Commerce-Platform/CODE_STRUCTURE_GUIDE.md) for detailed descriptions of all CSS, HTML/JSX components, Admin Panel workflows, Products, and Backend services.
 
 ---
 

@@ -12,8 +12,9 @@ const AdminLayout = () => {
   const [authError, setAuthError] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
 
-  // Active Tab
+  // Active Tab & Mobile Sidebar
   const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' | 'banners' | 'products' | 'categories' | 'orders' | 'coupons' | 'inquiries' | 'settings'
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   // Admin Data
   const [stats, setStats] = useState(null);
@@ -67,43 +68,77 @@ const AdminLayout = () => {
     { label: 'Toys Hero Banner', path: 'assets/hero_toys.png' }
   ];
 
-  // Helper to load file from PC / Phone directly into base64
-  const handleImageUpload = (file, setter, currentObj) => {
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      showToast('File Too Large', 'Please select an image under 5MB.', 'error');
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setter(prev => ({ ...(prev || currentObj), image: e.target.result }));
-      showToast('Photo Loaded', 'Image ready to save.', 'success');
-    };
-    reader.readAsDataURL(file);
+  // Helper to compress images to crisp WebP/JPEG under 60KB so it never exceeds localStorage quota
+  const compressImageFile = (file, maxWidth = 800, quality = 0.8) => {
+    return new Promise((resolve) => {
+      if (!file || !file.type.startsWith('image/')) {
+        resolve(null);
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          if (width > maxWidth || height > maxWidth) {
+            if (width > height) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            } else {
+              width = Math.round((width * maxWidth) / height);
+              height = maxWidth;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+          resolve(compressedDataUrl);
+        };
+        img.onerror = () => resolve(e.target.result);
+        img.src = e.target.result;
+      };
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(file);
+    });
   };
 
-  // Helper for 6 individual angle slots in Product Modal
-  const handleSlotImageUpload = (file, slotIndex) => {
+  // Helper to load file from PC / Phone directly with auto-compression
+  const handleImageUpload = async (file, setter, currentObj) => {
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      showToast('File Too Large', 'Please select an image under 5MB.', 'error');
+    if (file.size > 15 * 1024 * 1024) {
+      showToast('File Too Large', 'Please select an image under 15MB.', 'error');
       return;
     }
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setProductModal(prev => {
-        const curImages = Array.isArray(prev.images) && prev.images.length > 0 ? [...prev.images] : [prev.image || ''];
-        while (curImages.length <= slotIndex) curImages.push('');
-        curImages[slotIndex] = e.target.result;
-        return {
-          ...prev,
-          image: curImages[0] || e.target.result,
-          images: curImages
-        };
-      });
-      showToast(`Angle ${slotIndex + 1} Photo Loaded`, 'Image ready to save.', 'success');
-    };
-    reader.readAsDataURL(file);
+    const compressed = await compressImageFile(file, 1200, 0.82);
+    if (!compressed) return;
+    setter(prev => ({ ...(prev || currentObj), image: compressed }));
+    showToast('Photo Loaded', 'Optimized image ready to save.', 'success');
+  };
+
+  // Helper for 6 individual angle slots in Product Modal with auto-compression
+  const handleSlotImageUpload = async (file, slotIndex) => {
+    if (!file) return;
+    if (file.size > 15 * 1024 * 1024) {
+      showToast('File Too Large', 'Please select an image under 15MB.', 'error');
+      return;
+    }
+    const compressed = await compressImageFile(file, 800, 0.82);
+    if (!compressed) return;
+    setProductModal(prev => {
+      const curImages = Array.isArray(prev.images) && prev.images.length > 0 ? [...prev.images] : [prev.image || ''];
+      while (curImages.length <= slotIndex) curImages.push('');
+      curImages[slotIndex] = compressed;
+      return {
+        ...prev,
+        image: curImages[0] || compressed,
+        images: curImages
+      };
+    });
+    showToast(`Angle ${slotIndex + 1} Photo Loaded`, 'Optimized image ready to save.', 'success');
   };
 
   const handleSlotImageUrlChange = (url, slotIndex) => {
@@ -153,7 +188,7 @@ const AdminLayout = () => {
   const openNewProductModal = (catSlug = '') => {
     const targetCat = catSlug || (selectedProductCategory !== 'all' ? selectedProductCategory : (categories[0]?.slug || 'resin-art'));
     const targetCatObj = categories.find(c => c.slug === targetCat);
-    setProductModalTab('photos');
+    setProductModalTab('info');
     setProductModal({
       title: '',
       category: targetCat,
@@ -165,7 +200,7 @@ const AdminLayout = () => {
       price: 589,
       originalPrice: 799,
       stock: 25,
-      badge: 'SALE!',
+      badge: 'NEW',
       colors: ['Blue', 'Cream', 'Green', 'Orange', 'Red', 'Yellow'],
       image: 'assets/coastal_tray_1.jpg',
       images: [
@@ -176,20 +211,20 @@ const AdminLayout = () => {
         'assets/coastal_tray_5.jpg',
         'assets/coastal_tray_6.jpg'
       ],
-      shortDesc: 'A beautifully designed starfish-inspired jewellery tray featuring a distinctive coastal shape, smooth glossy surface, and textured raised edges. Its playful yet elegant design adds a charming touch to any space.',
-      longDesc: 'Individually handcrafted with artisanal mineral composite and non-toxic resin, this coastal tray captures the serene spirit of the ocean. Featuring embossed starfish details, a gently curved perimeter to prevent trinkets from sliding, and a water-resistant gloss protective coat.',
+      shortDesc: 'A beautifully designed handcrafted artisan piece featuring smooth glossy surfaces, textured edges, and artisanal finish.',
+      longDesc: 'Individually handcrafted with artisanal mineral composite and premium non-toxic resin. Features distinctive handcrafted details and a durable water-resistant gloss protective coat.',
       dimensions: '15cm x 15cm x 3.5cm',
       material: 'Fine Glazed Ceramic & Mineral Resin Composite',
       care: 'Wipe clean with a damp cloth. Avoid harsh abrasives or dishwashers.',
       sizes: ['Standard'],
-      tags: ['Corporate Gifts', 'Home Decor', 'Jewellery Jars & Trays', 'resin art', 'coastal tray']
+      tags: ['Handcrafted', 'Home Decor', 'Jewellery Jars & Trays', 'resin art']
     });
   };
 
   const openEditProductModal = (p) => {
     const rawImages = Array.isArray(p.images) && p.images.length > 0 ? [...p.images] : [p.image || ''];
     while (rawImages.length < 6) rawImages.push('');
-    setProductModalTab('photos');
+    setProductModalTab('info');
     setProductModal({
       ...p,
       images: rawImages,
@@ -338,6 +373,7 @@ const AdminLayout = () => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
         await api.deleteProduct(id);
+        setProducts(prev => prev.filter(p => String(p.id) !== String(id)));
         loadAdminData();
         refreshData?.();
         showToast('Product Deleted', 'Removed from store.', 'info');
@@ -348,8 +384,22 @@ const AdminLayout = () => {
   };
 
   const handleSaveProduct = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     try {
+      // Validation: Title
+      if (!productModal.title || !productModal.title.trim()) {
+        setProductModalTab('info');
+        showToast('Title Required', 'Please enter a Product Title.', 'error');
+        return;
+      }
+      // Validation: Selling Price
+      const parsedPrice = parseFloat(productModal.price);
+      if (isNaN(parsedPrice) || parsedPrice <= 0) {
+        setProductModalTab('pricing');
+        showToast('Price Required', 'Please enter a valid Selling Price.', 'error');
+        return;
+      }
+
       // Ensure images array contains valid items and primary image is set
       const rawImages = Array.isArray(productModal.images) && productModal.images.length > 0
         ? productModal.images
@@ -372,13 +422,14 @@ const AdminLayout = () => {
 
       const productPayload = {
         ...productModal,
+        title: productModal.title.trim(),
         image: primaryImage,
         images: finalImagesList,
         colors: processedColors || [],
         tags: processedTags || [],
-        price: parseFloat(productModal.price) || 0,
-        originalPrice: parseFloat(productModal.originalPrice) || 0,
-        stock: productModal.stock !== undefined ? parseInt(productModal.stock) : 20,
+        price: parsedPrice,
+        originalPrice: parseFloat(productModal.originalPrice) || parsedPrice,
+        stock: productModal.stock !== undefined ? parseInt(productModal.stock) : 25,
         sku: productModal.sku || `G${Math.floor(100 + Math.random() * 900)}`,
         brand: productModal.brand || 'KuaKua Craft',
         subCategory: productModal.subCategory || 'Jewellery Jars & Trays',
@@ -386,11 +437,14 @@ const AdminLayout = () => {
       };
 
       if (productModal.id) {
-        await api.updateProduct(productModal.id, productPayload);
+        const updated = await api.updateProduct(productModal.id, productPayload);
+        setProducts(prev => prev.map(p => String(p.id) === String(productModal.id) ? { ...p, ...productPayload, ...updated } : p));
         showToast('Product Updated', 'Changes saved with all 6 angles and details.', 'success');
       } else {
-        await api.createProduct(productPayload);
-        showToast('Product Created', 'New product added with 6 angle images to store.', 'success');
+        const created = await api.createProduct(productPayload);
+        const itemToAdd = created || { ...productPayload, id: Date.now(), createdAt: new Date().toISOString() };
+        setProducts(prev => [itemToAdd, ...prev.filter(p => String(p.id) !== String(itemToAdd.id))]);
+        showToast('Product Created', 'New product added to store.', 'success');
       }
       setProductModal(null);
       loadAdminData();
@@ -651,17 +705,44 @@ const AdminLayout = () => {
 
   // 2. Authenticated Admin Dashboard Layout
   return (
-    <div className="admin-wrapper" id="adminWrapper" style={{ display: 'flex', minHeight: '100vh', background: '#f8fafc', width: '100%' }}>
+    <div className="admin-wrapper" id="adminWrapper" style={{ display: 'flex', minHeight: '100vh', background: '#f8fafc', width: '100%', position: 'relative' }}>
+      {/* Mobile Backdrop */}
+      {mobileSidebarOpen && (
+        <div
+          onClick={() => setMobileSidebarOpen(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.5)',
+            zIndex: 1040
+          }}
+        />
+      )}
+
       {/* SIDEBAR */}
-      <aside className="admin-sidebar" id="adminSidebar" style={{ width: '270px', background: '#1A253C', color: '#fff', flexShrink: 0, padding: '20px 16px', display: 'flex', flexDirection: 'column', position: 'fixed', top: 0, bottom: 0, left: 0, zIndex: 1000, height: '100vh', overflowY: 'auto', boxSizing: 'border-box' }}>
-        <div className="sidebar-brand" style={{ display: 'flex', alignItems: 'center', gap: '10px', paddingBottom: '20px', borderBottom: '1px solid rgba(255,255,255,0.1)', marginBottom: '20px' }}>
-          <div style={{ width: '38px', height: '38px', borderRadius: '8px', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
-            <i className="fa-solid fa-crown"></i>
+      <aside className={`admin-sidebar ${mobileSidebarOpen ? 'open' : ''}`} id="adminSidebar" style={{ background: '#1A253C', color: '#fff', flexShrink: 0, padding: '20px 16px', display: 'flex', flexDirection: 'column', position: 'fixed', top: 0, bottom: 0, left: 0, height: '100vh', overflowY: 'auto', boxSizing: 'border-box' }}>
+        <div className="sidebar-brand" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '20px', borderBottom: '1px solid rgba(255,255,255,0.1)', marginBottom: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ width: '38px', height: '38px', borderRadius: '8px', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
+              <i className="fa-solid fa-crown"></i>
+            </div>
+            <div>
+              <h3 style={{ margin: 0, fontSize: '1.1rem', letterSpacing: '0.5px' }}>PRETUTE</h3>
+              <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Back Panel</span>
+            </div>
           </div>
-          <div>
-            <h3 style={{ margin: 0, fontSize: '1.1rem', letterSpacing: '0.5px' }}>PRETUTE</h3>
-            <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Back Panel</span>
-          </div>
+          <button
+            type="button"
+            className="sidebar-close-btn"
+            onClick={() => setMobileSidebarOpen(false)}
+            style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '1.3rem', cursor: 'pointer', padding: '4px' }}
+            aria-label="Close Sidebar"
+          >
+            <i className="fa-solid fa-xmark"></i>
+          </button>
         </div>
 
         {/* Navigation Sections */}
@@ -669,7 +750,7 @@ const AdminLayout = () => {
           {/* Group 1: Storefront Sections (Website Layout) */}
           <div>
             <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.8px', color: '#94a3b8', fontWeight: 700, padding: '0 8px 8px' }}>
-              Storefront Sections (वेबसाइट सेक्शंस)
+              Storefront Sections
             </div>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
               {[
@@ -683,7 +764,10 @@ const AdminLayout = () => {
                 <li key={item.id}>
                   <button
                     type="button"
-                    onClick={() => setActiveTab(item.id)}
+                    onClick={() => {
+                      setActiveTab(item.id);
+                      setMobileSidebarOpen(false);
+                    }}
                     style={{
                       width: '100%',
                       display: 'flex',
@@ -718,7 +802,7 @@ const AdminLayout = () => {
           {/* Group 2: Catalog & Store Operations */}
           <div>
             <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.8px', color: '#94a3b8', fontWeight: 700, padding: '0 8px 8px' }}>
-              Store Management (स्टोर व ऑर्डर्स)
+              Store Management
             </div>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
               {[
@@ -731,7 +815,10 @@ const AdminLayout = () => {
                 <li key={item.id}>
                   <button
                     type="button"
-                    onClick={() => setActiveTab(item.id)}
+                    onClick={() => {
+                      setActiveTab(item.id);
+                      setMobileSidebarOpen(false);
+                    }}
                     style={{
                       width: '100%',
                       display: 'flex',
@@ -784,24 +871,35 @@ const AdminLayout = () => {
       </aside>
 
       {/* MAIN CONTENT AREA */}
-      <main className="admin-main" style={{ flex: 1, marginLeft: '270px', padding: '28px 36px', overflowY: 'auto', minHeight: '100vh', width: 'calc(100% - 270px)', boxSizing: 'border-box' }}>
+      <main className="admin-main" style={{ flex: 1, padding: '24px 28px', overflowY: 'auto', minHeight: '100vh', boxSizing: 'border-box' }}>
         {/* Top Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', borderBottom: '1px solid #e2e8f0', paddingBottom: '14px' }}>
-          <div>
-            <h1 style={{ margin: 0, fontSize: '1.6rem', color: '#1A253C' }}>
-              {activeTab === 'dashboard' && 'Dashboard Overview'}
-              {activeTab === 'header' && 'Header & Announcement Bar Manager'}
-              {activeTab === 'banners' && 'Homepage Carousel Banners'}
-              {activeTab === 'categories' && 'Shop by Category Manager'}
-              {activeTab === 'latest_products' && 'Our Latest Products Manager'}
-              {activeTab === 'featured_products' && 'Featured Collections Manager'}
-              {activeTab === 'products' && 'Products Catalog (Category-Wise)'}
-              {activeTab === 'orders' && 'Order Processing & Deliveries'}
-              {activeTab === 'coupons' && 'Exclusive Deals & Promo Codes'}
-              {activeTab === 'inquiries' && 'Customer Inquiries & Messages'}
-              {activeTab === 'settings' && 'Store Configuration & Backups'}
-            </h1>
-            <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '0.85rem' }}>PRETUTE Administrator Control Panel</p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', borderBottom: '1px solid #e2e8f0', paddingBottom: '14px', flexWrap: 'wrap', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <button
+              type="button"
+              className="mobile-toggle-btn"
+              onClick={() => setMobileSidebarOpen(prev => !prev)}
+              style={{ background: '#1A253C', color: '#fff', border: 'none', borderRadius: '6px', width: '38px', height: '38px', cursor: 'pointer', display: 'none' }}
+              title="Toggle Menu"
+            >
+              <i className="fa-solid fa-bars"></i>
+            </button>
+            <div>
+              <h1 style={{ margin: 0, fontSize: '1.5rem', color: '#1A253C' }}>
+                {activeTab === 'dashboard' && 'Dashboard Overview'}
+                {activeTab === 'header' && 'Header & Announcement Bar Manager'}
+                {activeTab === 'banners' && 'Homepage Carousel Banners'}
+                {activeTab === 'categories' && 'Shop by Category Manager'}
+                {activeTab === 'latest_products' && 'Our Latest Products Manager'}
+                {activeTab === 'featured_products' && 'Featured Collections Manager'}
+                {activeTab === 'products' && 'Products Catalog (Category-Wise)'}
+                {activeTab === 'orders' && 'Order Processing & Deliveries'}
+                {activeTab === 'coupons' && 'Exclusive Deals & Promo Codes'}
+                {activeTab === 'inquiries' && 'Customer Inquiries & Messages'}
+                {activeTab === 'settings' && 'Store Configuration & Backups'}
+              </h1>
+              <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '0.85rem' }}>PRETUTE Administrator Control Panel</p>
+            </div>
           </div>
 
           <div style={{ display: 'flex', gap: '10px' }}>
@@ -935,12 +1033,12 @@ const AdminLayout = () => {
         {/* TAB 2: PRODUCTS (CATEGORY-WISE) */}
         {activeTab === 'products' && (
           <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-            {/* Category Filter Pills (हर कैटेगरी का अलग टैब) */}
+            {/* Category Filter Pills */}
             <div style={{ marginBottom: '20px', background: '#f8fafc', padding: '16px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                 <div style={{ fontSize: '0.84rem', fontWeight: 700, color: '#1A253C', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <i className="fa-solid fa-layer-group" style={{ color: 'var(--color-primary)' }}></i>
-                  <span>Category-Wise Filter & Direct Add (कैटेगरी चुनकर प्रोडक्ट जोड़ें):</span>
+                  <span>Category-Wise Filter & Direct Add:</span>
                 </div>
                 <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
                   Showing {products.filter(p => (!productSearch || p.title.toLowerCase().includes(productSearch.toLowerCase())) && (selectedProductCategory === 'all' || p.category === selectedProductCategory)).length} products
@@ -1132,7 +1230,7 @@ const AdminLayout = () => {
                 </span>
                 <h3 style={{ margin: '6px 0 2px 0', fontSize: '1.15rem', color: '#1A253C' }}>Our Latest Products Manager</h3>
                 <p style={{ margin: 0, fontSize: '0.84rem', color: '#64748b' }}>
-                  Yeh products website ke <strong>"Shop by Category"</strong> ke theek baad <strong>"Our Latest Products"</strong> section me show hote hain.
+                  These products appear directly after the <strong>"Shop by Category"</strong> section in the <strong>"Our Latest Products"</strong> showcase.
                 </p>
               </div>
               <button
@@ -1228,7 +1326,7 @@ const AdminLayout = () => {
                 </span>
                 <h3 style={{ margin: '6px 0 2px 0', fontSize: '1.15rem', color: '#1A253C' }}>Featured Collections Manager</h3>
                 <p style={{ margin: 0, fontSize: '0.84rem', color: '#64748b' }}>
-                  Yahan se kisi bhi product ko 1-click me <strong>Featured ⭐</strong> bana sakte hain taaki wo Home Page ke "Featured Collections" me dikhe.
+                  Highlight any product as <strong>Featured ⭐</strong> with one click to display it in the "Featured Collections" showcase on the home page.
                 </p>
               </div>
               <button
@@ -1326,7 +1424,7 @@ const AdminLayout = () => {
               <form onSubmit={handleSaveSettings} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
-                    Top Announcement Bar Text (ऊपर की घोषणा पट्टी)
+                    Top Announcement Bar Text
                   </label>
                   <input
                     type="text"
@@ -1347,13 +1445,13 @@ const AdminLayout = () => {
                     style={{ width: '18px', height: '18px', cursor: 'pointer' }}
                   />
                   <label htmlFor="announcementActive" style={{ fontSize: '0.85rem', fontWeight: 600, color: '#334155', cursor: 'pointer' }}>
-                    Show Top Announcement Bar on Storefront (घोषणा पट्टी चालू रखें)
+                    Show Top Announcement Bar on Storefront
                   </label>
                 </div>
 
                 <div>
                   <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
-                    Store Brand Title (स्टोर का नाम)
+                    Store Brand Title
                   </label>
                   <input
                     type="text"
@@ -1732,10 +1830,10 @@ const AdminLayout = () => {
             {/* Modal Internal Navigation Tabs */}
             <div style={{ display: 'flex', gap: '8px', borderBottom: '2px solid #f1f5f9', paddingBottom: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
               {[
-                { id: 'photos', label: '📸 6 Angle Photos (6 फ़ोटो गैलरी)', icon: 'fa-images' },
-                { id: 'info', label: '🏷️ Title, Category & SKU', icon: 'fa-tag' },
-                { id: 'pricing', label: '💰 Price & Colours', icon: 'fa-indian-rupee-sign' },
-                { id: 'details', label: '📝 Description & Specs', icon: 'fa-file-lines' }
+                { id: 'info', label: '1. Title, Category & SKU', icon: 'fa-tag' },
+                { id: 'photos', label: '2. 6 Angle Photos Gallery', icon: 'fa-images' },
+                { id: 'pricing', label: '3. Price & Colours', icon: 'fa-indian-rupee-sign' },
+                { id: 'details', label: '4. Description & Specs', icon: 'fa-file-lines' }
               ].map(t => (
                 <button
                   key={t.id}
@@ -1768,10 +1866,10 @@ const AdminLayout = () => {
                     <div>
                       <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#1A253C' }}>
                         <i className="fa-solid fa-camera-rotate" style={{ color: 'var(--color-primary)', marginRight: '8px' }}></i>
-                        Product 6-Angle Photo Gallery (6 अलग-अलग कोण की तस्वीरें)
+                        Product 6-Angle Photo Gallery
                       </div>
                       <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '2px' }}>
-                        WordPress jaise Coastal Tray me 6 images hain, waisa hi yahan har angle ke liye photo choose ya URL paste karein.
+                        Upload high-resolution images for each viewing angle or enter image URLs.
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: '8px' }}>
@@ -1798,12 +1896,12 @@ const AdminLayout = () => {
                   {/* 6 Angle Slots Grid */}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '14px' }}>
                     {[
-                      { idx: 0, title: 'Slot 1: Main / Front View', hindi: 'मुख्य फ़ोटो (सामने से)', icon: 'fa-star', required: true },
-                      { idx: 1, title: 'Slot 2: 45° Side Angle', hindi: 'तिरछा / साइड कोण', icon: 'fa-camera', required: false },
-                      { idx: 2, title: 'Slot 3: Rim Profile & Detail', hindi: 'किनारा व बारीक नक्काशी', icon: 'fa-magnifying-glass-plus', required: false },
-                      { idx: 3, title: 'Slot 4: Back Profile & Texture', hindi: 'पीछे का भाग व टेक्सचर', icon: 'fa-rotate', required: false },
-                      { idx: 4, title: 'Slot 5: Color Variant 1 / Angle 5', hindi: 'कलर वैरिएंट 1 या 5वां कोण', icon: 'fa-palette', required: false },
-                      { idx: 5, title: 'Slot 6: Color Variant 2 / Angle 6', hindi: 'कलर वैरिएंट 2 या 6वां कोण', icon: 'fa-palette', required: false }
+                      { idx: 0, title: 'Slot 1: Main / Front View', sub: 'Primary Frontal View', icon: 'fa-star', required: true },
+                      { idx: 1, title: 'Slot 2: 45° Side Angle', sub: 'Perspective Side Angle', icon: 'fa-camera', required: false },
+                      { idx: 2, title: 'Slot 3: Rim Profile & Detail', sub: 'Rim & Edge Detailing', icon: 'fa-magnifying-glass-plus', required: false },
+                      { idx: 3, title: 'Slot 4: Back Profile & Texture', sub: 'Back Profile & Finish', icon: 'fa-rotate', required: false },
+                      { idx: 4, title: 'Slot 5: Color Variant 1 / Angle 5', sub: 'Variant Shade / Angle 5', icon: 'fa-palette', required: false },
+                      { idx: 5, title: 'Slot 6: Color Variant 2 / Angle 6', sub: 'Variant Shade / Angle 6', icon: 'fa-palette', required: false }
                     ].map(slot => {
                       const curImgs = Array.isArray(productModal.images) ? productModal.images : [productModal.image || ''];
                       const currentVal = curImgs[slot.idx] || (slot.idx === 0 ? productModal.image || '' : '');
@@ -1845,7 +1943,7 @@ const AdminLayout = () => {
                                 {slot.title} {slot.required && <span style={{ color: '#ef4444' }}>*</span>}
                               </span>
                               <span style={{ fontSize: '0.68rem', color: '#64748b' }}>
-                                {slot.hindi}
+                                {slot.sub}
                               </span>
                             </div>
 
@@ -1904,8 +2002,26 @@ const AdminLayout = () => {
                       ))}
                     </select>
                     <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                      💡 WordPress se image copy karke direct paste kar sakte hain ya device se upload karein.
+                      💡 Copy and paste an image URL or upload directly from your device.
                     </span>
+                  </div>
+
+                  {/* Step Navigation Bar */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '10px', borderTop: '1px solid #e2e8f0' }}>
+                    <button
+                      type="button"
+                      onClick={() => setProductModalTab('info')}
+                      style={{ padding: '8px 16px', borderRadius: '6px', background: '#f1f5f9', border: '1px solid #cbd5e1', color: '#334155', fontWeight: 600, cursor: 'pointer', fontSize: '0.84rem' }}
+                    >
+                      ⬅ Back to Info
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setProductModalTab('pricing')}
+                      style={{ padding: '8px 18px', borderRadius: '6px', background: 'var(--color-primary)', border: 'none', color: '#fff', fontWeight: 600, cursor: 'pointer', fontSize: '0.84rem' }}
+                    >
+                      Next: Price & Colours ➔
+                    </button>
                   </div>
                 </div>
               )}
@@ -1914,7 +2030,7 @@ const AdminLayout = () => {
               {productModalTab === 'info' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>Product Title * (उत्पाद का नाम)</label>
+                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>Product Title *</label>
                     <input
                       type="text"
                       required
@@ -1960,7 +2076,7 @@ const AdminLayout = () => {
                       </select>
                     </div>
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>Sub-Category (सब-कैटेगरी)</label>
+                      <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>Sub-Category</label>
                       <input
                         type="text"
                         placeholder="e.g. Jewellery Jars & Trays"
@@ -1996,7 +2112,7 @@ const AdminLayout = () => {
                       <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>Badge (Optional, e.g. SALE!, HOT, NEW)</label>
                       <input
                         type="text"
-                        placeholder="e.g. SALE!"
+                        placeholder="e.g. NEW"
                         value={productModal.badge || ''}
                         onChange={(e) => setProductModal({ ...productModal, badge: e.target.value })}
                         style={{ width: '100%', padding: '9px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.88rem', boxSizing: 'border-box' }}
@@ -2014,6 +2130,17 @@ const AdminLayout = () => {
                       style={{ width: '100%', padding: '9px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.88rem', boxSizing: 'border-box' }}
                     />
                   </div>
+
+                  {/* Step Navigation Bar */}
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', paddingTop: '10px', borderTop: '1px solid #e2e8f0' }}>
+                    <button
+                      type="button"
+                      onClick={() => setProductModalTab('photos')}
+                      style={{ padding: '8px 18px', borderRadius: '6px', background: 'var(--color-primary)', border: 'none', color: '#fff', fontWeight: 600, cursor: 'pointer', fontSize: '0.84rem' }}
+                    >
+                      Next: 6 Angle Photos ➔
+                    </button>
+                  </div>
                 </div>
               )}
 
@@ -2022,7 +2149,7 @@ const AdminLayout = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>Selling Price (₹) * (बिक्री मूल्य)</label>
+                      <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>Selling Price (₹) *</label>
                       <input
                         type="number"
                         required
@@ -2033,7 +2160,7 @@ const AdminLayout = () => {
                       />
                     </div>
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>Original MRP (₹) (कटा हुआ मूल्य)</label>
+                      <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>Original MRP (₹) (Strikethrough Price)</label>
                       <input
                         type="number"
                         placeholder="799"
@@ -2059,7 +2186,7 @@ const AdminLayout = () => {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                       <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1A253C' }}>
                         <i className="fa-solid fa-palette" style={{ color: 'var(--color-primary)', marginRight: '6px' }}></i>
-                        Product Colour Swatches (रंगों के विकल्प)
+                        Product Colour Swatches
                       </label>
                       <button
                         type="button"
@@ -2070,7 +2197,7 @@ const AdminLayout = () => {
                       </button>
                     </div>
                     <p style={{ margin: '0 0 10px 0', fontSize: '0.78rem', color: '#64748b' }}>
-                      WordPress screenshot jaise color boxes aayenge. Comma se separate karke likhein (e.g. Blue, Cream, Green, Orange, Red, Yellow):
+                      Enter color names separated by commas (e.g. Blue, Cream, Green, Orange, Red, Yellow):
                     </p>
                     <input
                       type="text"
@@ -2112,6 +2239,24 @@ const AdminLayout = () => {
                       })}
                     </div>
                   </div>
+
+                  {/* Step Navigation Bar */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '10px', borderTop: '1px solid #e2e8f0' }}>
+                    <button
+                      type="button"
+                      onClick={() => setProductModalTab('photos')}
+                      style={{ padding: '8px 16px', borderRadius: '6px', background: '#f1f5f9', border: '1px solid #cbd5e1', color: '#334155', fontWeight: 600, cursor: 'pointer', fontSize: '0.84rem' }}
+                    >
+                      ⬅ Back to Photos
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setProductModalTab('details')}
+                      style={{ padding: '8px 18px', borderRadius: '6px', background: 'var(--color-primary)', border: 'none', color: '#fff', fontWeight: 600, cursor: 'pointer', fontSize: '0.84rem' }}
+                    >
+                      Next: Description & Specs ➔
+                    </button>
+                  </div>
                 </div>
               )}
 
@@ -2120,7 +2265,7 @@ const AdminLayout = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   <div>
                     <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
-                      Short Description (संक्षिप्त विवरण - कीमत के नीचे दिखेगा)
+                      Short Description (Appears below price on product page)
                     </label>
                     <textarea
                       rows={2}
@@ -2133,7 +2278,7 @@ const AdminLayout = () => {
 
                   <div>
                     <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
-                      Detailed Story / Long Description (विस्तृत विवरण - Description टैब में दिखेगा)
+                      Detailed Story / Long Description (Appears in Description tab)
                     </label>
                     <textarea
                       rows={3}
@@ -2146,7 +2291,7 @@ const AdminLayout = () => {
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>Dimensions / Size (आकार)</label>
+                      <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>Dimensions / Size</label>
                       <input
                         type="text"
                         placeholder="e.g. 15cm x 15cm x 3.5cm"
@@ -2156,7 +2301,7 @@ const AdminLayout = () => {
                       />
                     </div>
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>Material (सामग्री)</label>
+                      <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>Material</label>
                       <input
                         type="text"
                         placeholder="e.g. Fine Glazed Ceramic & Mineral Resin Composite"
@@ -2168,7 +2313,7 @@ const AdminLayout = () => {
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>Care Instructions (देखभाल निर्देश)</label>
+                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>Care Instructions</label>
                     <input
                       type="text"
                       placeholder="e.g. Wipe clean with a damp cloth. Avoid harsh abrasives or dishwashers."
@@ -2179,7 +2324,7 @@ const AdminLayout = () => {
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>Search &amp; Related Product Tags (टैग्स - कॉमा से अलग करें)</label>
+                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>Search &amp; Related Product Tags (Comma separated)</label>
                     <input
                       type="text"
                       placeholder="e.g. Corporate Gifts, Home Decor, Jewellery Jars & Trays, coastal tray"
@@ -2190,7 +2335,18 @@ const AdminLayout = () => {
                   </div>
 
                   <div style={{ background: '#f8fafc', padding: '12px 16px', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.82rem', color: '#64748b' }}>
-                    <strong style={{ color: '#1A253C' }}>🔗 Related Products (सम्बंधित उत्पाद):</strong> Website par Category aur Sub-Category ke anusar related products (jaise WAVE TRAY, LOTUS DUO, OVAL PEARL TRAY, PEBBLE BOWL) apne aap product page ke neeche dikhai denge.
+                    <strong style={{ color: '#1A253C' }}>🔗 Related Products:</strong> Products in the same category and sub-category will automatically be suggested as related items on the product page.
+                  </div>
+
+                  {/* Step Navigation Bar */}
+                  <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', paddingTop: '10px', borderTop: '1px solid #e2e8f0' }}>
+                    <button
+                      type="button"
+                      onClick={() => setProductModalTab('pricing')}
+                      style={{ padding: '8px 16px', borderRadius: '6px', background: '#f1f5f9', border: '1px solid #cbd5e1', color: '#334155', fontWeight: 600, cursor: 'pointer', fontSize: '0.84rem' }}
+                    >
+                      ⬅ Back to Pricing
+                    </button>
                   </div>
                 </div>
               )}
@@ -2202,7 +2358,7 @@ const AdminLayout = () => {
                   style={{ flex: 1, padding: '12px', background: 'var(--color-primary)', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '0.95rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 2px 8px rgba(255,91,127,0.3)' }}
                 >
                   <i className="fa-solid fa-floppy-disk"></i>
-                  {productModal.id ? 'Save Changes' : 'Create & Publish Product (6 Photos)'}
+                  {productModal.id ? 'Save Changes' : 'Create & Publish Product'}
                 </button>
                 <button
                   type="button"

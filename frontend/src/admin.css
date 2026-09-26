@@ -433,9 +433,12 @@ body {
 .admin-main {
     flex: 1;
     margin-left: var(--adm-sidebar-width);
+    width: calc(100% - var(--adm-sidebar-width));
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
+    transition: margin-left 0.3s ease, width 0.3s ease;
 }
 
 /* TOP HEADER */
@@ -1453,6 +1456,8 @@ body {
 
     .admin-sidebar {
         transform: translateX(-100%);
+        z-index: 1050 !important;
+        box-shadow: 6px 0 25px rgba(0, 0, 0, 0.4) !important;
     }
 
     .admin-sidebar.open {
@@ -1460,15 +1465,19 @@ body {
     }
 
     .sidebar-close-btn {
-        display: block;
+        display: block !important;
     }
 
     .admin-main {
-        margin-left: 0;
+        margin-left: 0 !important;
+        width: 100% !important;
+        padding: 18px 16px !important;
     }
 
     .mobile-toggle-btn {
-        display: block;
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
     }
 }
 

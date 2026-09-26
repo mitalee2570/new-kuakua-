@@ -1,6 +1,8 @@
 import { initialProducts, initialCategories, initialBanners } from '../data/initialData';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = typeof window !== 'undefined' && window.location.hostname === 'localhost'
+  ? 'http://localhost:5000/api'
+  : '/api';
 
 // Local storage helper for offline / backend-down resilience
 const STORAGE_PREFIX = 'pretute_local_';
@@ -8,7 +10,11 @@ const STORAGE_PREFIX = 'pretute_local_';
 function getLocal(key, fallback) {
   try {
     const val = localStorage.getItem(`${STORAGE_PREFIX}${key}`);
-    if (val) return JSON.parse(val);
+    if (val) {
+      const parsed = JSON.parse(val);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (parsed && typeof parsed === 'object') return parsed;
+    }
   } catch (_e) {}
   return fallback;
 }
@@ -16,7 +22,14 @@ function getLocal(key, fallback) {
 function setLocal(key, data) {
   try {
     localStorage.setItem(`${STORAGE_PREFIX}${key}`, JSON.stringify(data));
-  } catch (_e) {}
+  } catch (e) {
+    console.warn(`Could not save ${key} to localStorage:`, e);
+    // If quota exceeded, clean temporary logs/data and retry
+    try {
+      localStorage.removeItem(`${STORAGE_PREFIX}logs`);
+      localStorage.setItem(`${STORAGE_PREFIX}${key}`, JSON.stringify(data));
+    } catch (_err) {}
+  }
 }
 
 async function request(endpoint, options = {}) {
@@ -58,7 +71,12 @@ export const api = {
       return data;
     } catch (_err) {
       console.info('Backend unreachable, using local products cache');
-      return getLocal('products', initialProducts);
+      const cached = getLocal('products', null);
+      if (!cached || !Array.isArray(cached) || cached.length === 0) {
+        setLocal('products', initialProducts);
+        return initialProducts;
+      }
+      return cached;
     }
   },
   getProductById: async (id) => {
@@ -73,27 +91,41 @@ export const api = {
     try {
       const created = await request('/products', { method: 'POST', body: JSON.stringify(productData) });
       const current = getLocal('products', initialProducts);
-      setLocal('products', [created, ...current.filter(p => String(p.id) !== String(created.id))]);
+      const updated = [created, ...current.filter(p => String(p.id) !== String(created.id))];
+      setLocal('products', updated);
       return created;
     } catch (err) {
       console.warn('Backend offline, saving product locally:', err.message);
       const newProduct = {
         id: Date.now(),
         title: productData.title || 'Untitled Product',
-        category: productData.category || 'general',
+        category: productData.category || 'resin-art',
         categoryLabel: productData.categoryLabel || productData.category,
-        image: productData.image || 'assets/prod_romper.png',
-        images: productData.images || [productData.image || 'assets/prod_romper.png'],
+        subCategory: productData.subCategory || 'Jewellery Jars & Trays',
+        categoriesList: productData.categoriesList || ['Gifts', 'Home Decor', 'Jewellery Jars & Trays'],
+        sku: productData.sku || `G${Math.floor(100 + Math.random() * 900)}`,
+        brand: productData.brand || 'KuaKua Craft',
+        image: productData.image || 'assets/coastal_tray_1.jpg',
+        images: Array.isArray(productData.images) && productData.images.length > 0
+          ? productData.images
+          : [productData.image || 'assets/coastal_tray_1.jpg'],
         originalPrice: parseFloat(productData.originalPrice) || 0,
         price: parseFloat(productData.price) || 0,
-        discount: productData.discount ? parseInt(productData.discount) : 0,
-        stock: parseInt(productData.stock) || 0,
+        discount: productData.originalPrice > productData.price
+          ? Math.round(((productData.originalPrice - productData.price) / productData.originalPrice) * 100)
+          : (productData.discount ? parseInt(productData.discount) : 0),
+        stock: productData.stock !== undefined ? parseInt(productData.stock) : 25,
         stockStatus: (parseInt(productData.stock) || 0) > 0 ? 'in_stock' : 'out_of_stock',
         rating: parseFloat(productData.rating) || 5.0,
-        reviewsCount: parseInt(productData.reviewsCount) || 0,
-        badge: productData.badge || '',
+        reviewsCount: parseInt(productData.reviewsCount) || 12,
+        badge: productData.badge || 'NEW',
+        colors: productData.colors || ['Blue', 'Cream', 'Green', 'Orange', 'Red', 'Yellow'],
+        tags: productData.tags || [],
         shortDesc: productData.shortDesc || '',
         longDesc: productData.longDesc || '',
+        dimensions: productData.dimensions || '15cm x 15cm x 3.5cm',
+        material: productData.material || 'Fine Glazed Ceramic & Mineral Resin Composite',
+        care: productData.care || 'Wipe clean with a damp cloth. Avoid harsh abrasives or dishwashers.',
         sizes: productData.sizes || ['Standard'],
         featured: productData.featured || false,
         status: productData.status || 'active',
@@ -101,7 +133,7 @@ export const api = {
         createdAt: new Date().toISOString()
       };
       const current = getLocal('products', initialProducts);
-      const updated = [newProduct, ...current];
+      const updated = [newProduct, ...current.filter(p => String(p.id) !== String(newProduct.id))];
       setLocal('products', updated);
       return newProduct;
     }

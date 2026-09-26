@@ -70,46 +70,14 @@ const ProductDetailModal = ({ product, isModal = true, onClose = null }) => {
     .slice(0, 4);
 
   const content = (
-    <div
-      className="wordpress-pdp-container"
-      style={{
-        background: '#ffffff',
-        borderRadius: '12px',
-        overflow: 'hidden',
-        maxWidth: '1140px',
-        margin: '0 auto',
-        padding: '30px 24px',
-        fontFamily: "'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-      }}
-    >
-      {/* Top 2-Column Product Layout matching User's WordPress Screenshot */}
-      <div
-        className="wordpress-pdp-main"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'minmax(320px, 480px) 1fr',
-          gap: '40px',
-          alignItems: 'start'
-        }}
-      >
+    <div className="wordpress-pdp-container">
+      {/* Top 2-Column Product Layout */}
+      <div className="wordpress-pdp-main">
         {/* LEFT COLUMN: Gallery with Main Image & Up to 6 Thumbnails */}
         <div className="pdp-gallery-column">
           {/* Main Large Image Box */}
-          <div
-            style={{
-              position: 'relative',
-              background: '#fdfbf7',
-              borderRadius: '12px',
-              border: '1px solid #ebe8e2',
-              height: '440px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              overflow: 'hidden',
-              boxShadow: '0 4px 16px rgba(0,0,0,0.04)'
-            }}
-          >
-            {/* Round SALE! Badge with Kua Kua Logo Icon matching screenshot */}
+          <div className="pdp-main-image-box">
+            {/* Round SALE! Badge with Kua Kua Logo Icon */}
             <div
               style={{
                 position: 'absolute',
@@ -245,14 +213,7 @@ const ProductDetailModal = ({ product, isModal = true, onClose = null }) => {
         <div className="pdp-details-column">
           {/* Product Title */}
           <h1
-            style={{
-              fontSize: '2rem',
-              fontWeight: 800,
-              color: '#1A253C',
-              margin: '0 0 12px 0',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
-            }}
+            className="pdp-product-title"
           >
             {product.title}
           </h1>
@@ -355,84 +316,32 @@ const ProductDetailModal = ({ product, isModal = true, onClose = null }) => {
           </div>
 
           {/* Quantity Counter & Add To Cart Button */}
-          <div style={{ display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '26px' }}>
+          <div className="pdp-actions-row">
             {/* Quantity Selector: [ - ] [ 1 ] [ + ] */}
-            <div
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                border: '1.5px solid #cbd5e1',
-                borderRadius: '6px',
-                overflow: 'hidden',
-                background: '#ffffff'
-              }}
-            >
+            <div className="pdp-qty-selector">
               <button
                 type="button"
                 onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                style={{
-                  width: '38px',
-                  height: '42px',
-                  border: 'none',
-                  background: '#f8fafc',
-                  fontSize: '1.1rem',
-                  cursor: 'pointer',
-                  color: '#475569',
-                  fontWeight: 600
-                }}
               >
                 -
               </button>
-              <span
-                style={{
-                  width: '44px',
-                  textAlign: 'center',
-                  fontWeight: 700,
-                  fontSize: '0.95rem',
-                  color: '#1A253C'
-                }}
-              >
+              <span>
                 {quantity}
               </span>
               <button
                 type="button"
                 onClick={() => setQuantity(q => q + 1)}
-                style={{
-                  width: '38px',
-                  height: '42px',
-                  border: 'none',
-                  background: '#f8fafc',
-                  fontSize: '1.1rem',
-                  cursor: 'pointer',
-                  color: '#475569',
-                  fontWeight: 600
-                }}
               >
                 +
               </button>
             </div>
 
-            {/* ADD TO CART Button matching Screenshot 1 */}
+            {/* ADD TO CART Button */}
             <button
               type="button"
+              className="pdp-btn-cart"
               disabled={isOutOfStock}
               onClick={handleAddToCart}
-              style={{
-                padding: '12px 32px',
-                borderRadius: '6px',
-                background: isOutOfStock ? '#94a3b8' : '#94a3b8',
-                color: '#ffffff',
-                border: 'none',
-                fontWeight: 800,
-                fontSize: '0.92rem',
-                letterSpacing: '0.8px',
-                textTransform: 'uppercase',
-                cursor: isOutOfStock ? 'not-allowed' : 'pointer',
-                transition: 'background 0.2s ease',
-                boxShadow: '0 2px 6px rgba(0,0,0,0.06)'
-              }}
-              onMouseEnter={(e) => { if (!isOutOfStock) e.currentTarget.style.background = '#64748b'; }}
-              onMouseLeave={(e) => { if (!isOutOfStock) e.currentTarget.style.background = '#94a3b8'; }}
             >
               <i className="fa-solid fa-cart-shopping" style={{ marginRight: '8px' }}></i>
               {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
@@ -441,19 +350,9 @@ const ProductDetailModal = ({ product, isModal = true, onClose = null }) => {
             {/* BUY NOW Button */}
             <button
               type="button"
+              className="pdp-btn-buy"
               disabled={isOutOfStock}
               onClick={handleBuyNow}
-              style={{
-                padding: '12px 28px',
-                borderRadius: '6px',
-                background: isOutOfStock ? '#cbd5e1' : 'var(--color-primary, #FF5B7F)',
-                color: '#ffffff',
-                border: 'none',
-                fontWeight: 700,
-                fontSize: '0.92rem',
-                cursor: isOutOfStock ? 'not-allowed' : 'pointer',
-                boxShadow: '0 2px 8px rgba(255,91,127,0.3)'
-              }}
             >
               Buy Now
             </button>
@@ -626,57 +525,19 @@ const ProductDetailModal = ({ product, isModal = true, onClose = null }) => {
   if (isModal) {
     return (
       <div
-        className="custom-modal-overlay active"
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0, 0, 0, 0.72)',
-          backdropFilter: 'blur(3px)',
-          zIndex: 9999,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '20px',
-          overflowY: 'auto'
-        }}
+        className="custom-modal-overlay active pdp-quick-view-overlay"
         onClick={onClose}
       >
         <div
-          style={{
-            position: 'relative',
-            width: '100%',
-            maxWidth: '1080px',
-            maxHeight: '92vh',
-            overflowY: 'auto',
-            borderRadius: '12px'
-          }}
+          className="pdp-modal-dialog"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close Button */}
           <button
             type="button"
+            className="pdp-modal-close-btn"
             onClick={onClose}
             aria-label="Close"
-            style={{
-              position: 'absolute',
-              top: '16px',
-              right: '16px',
-              zIndex: 10,
-              background: '#f1f5f9',
-              border: 'none',
-              borderRadius: '50%',
-              width: '36px',
-              height: '36px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              fontSize: '1.1rem',
-              color: '#475569'
-            }}
           >
             <i className="fa-solid fa-xmark"></i>
           </button>

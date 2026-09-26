@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PRETUTE E-Commerce - कोड स्ट्रक्चर व फ़ाइल एडिटिंग गाइड</title>
+  <title>PRETUTE E-Commerce - Code Structure & File Editing Guide</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
@@ -23,7 +23,7 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'Outfit', 'Noto Sans Devanagari', sans-serif;
+      font-family: 'Outfit', 'Inter', sans-serif;
       background: var(--bg);
       color: var(--text);
       line-height: 1.6;
@@ -61,138 +61,142 @@
       border-radius: 20px;
       font-size: 0.8rem;
       font-weight: 700;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.8px;
       text-transform: uppercase;
       margin-bottom: 12px;
-      border: 1px solid rgba(255, 91, 127, 0.3);
     }
     h1 {
       font-size: 2rem;
       font-weight: 800;
-      margin-bottom: 8px;
+      line-height: 1.25;
+      margin-bottom: 10px;
     }
-    .subtitle {
-      font-size: 1rem;
+    p.subtitle {
       color: #cbd5e1;
-      max-width: 780px;
+      font-size: 1rem;
+      max-width: 760px;
     }
     .quick-nav {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
       margin-top: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
     }
-    .nav-btn {
-      padding: 8px 14px;
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 8px;
+    .quick-nav a {
       color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       text-decoration: none;
-      font-size: 0.82rem;
-      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
       transition: all 0.2s;
     }
-    .nav-btn:hover {
+    .quick-nav a:hover {
       background: var(--primary);
       border-color: var(--primary);
     }
     .section-card {
       background: var(--card);
-      border-radius: 14px;
-      padding: 28px;
-      margin-bottom: 24px;
       border: 1px solid var(--border);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+      border-radius: 14px;
+      padding: 26px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
     }
     .section-title {
       font-size: 1.3rem;
-      font-weight: 800;
+      font-weight: 700;
       color: var(--navy);
       display: flex;
       align-items: center;
       gap: 10px;
-      margin-bottom: 18px;
-      padding-bottom: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
       border-bottom: 2px solid #f1f5f9;
     }
     .section-title i {
       color: var(--primary);
     }
-    table.guide-table {
+    .guide-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.9rem;
       margin-top: 10px;
+      font-size: 0.92rem;
     }
-    table.guide-table th {
-      background: #f8fafc;
-      padding: 12px 16px;
+    .guide-table th, .guide-table td {
+      padding: 12px 14px;
       text-align: left;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .guide-table th {
+      background: #f8fafc;
       font-weight: 700;
       color: var(--navy);
-      border-bottom: 2px solid var(--border);
       font-size: 0.84rem;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-    table.guide-table td {
-      padding: 14px 16px;
-      border-bottom: 1px solid #f1f5f9;
-      vertical-align: top;
-    }
-    table.guide-table tr:hover {
-      background: #fafcff;
-    }
     .code-path {
-      font-family: 'Consolas', monospace;
-      font-weight: 700;
-      color: #0f172a;
+      font-family: 'Consolas', 'Courier New', monospace;
       background: #f1f5f9;
+      color: #0f172a;
       padding: 3px 8px;
       border-radius: 6px;
-      display: inline-block;
       font-size: 0.85rem;
-      border: 1px solid #cbd5e1;
+      font-weight: 600;
+      display: inline-block;
+      border: 1px solid #e2e8f0;
     }
     .tag {
       display: inline-block;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 0.72rem;
+      padding: 3px 9px;
+      border-radius: 6px;
+      font-size: 0.75rem;
       font-weight: 700;
       text-transform: uppercase;
+      letter-spacing: 0.4px;
     }
-    .tag-css { background: #dbeafe; color: #1e40af; }
-    .tag-jsx { background: #e0e7ff; color: #4338ca; }
-    .tag-json { background: #fef3c7; color: #b45309; }
-    .tag-admin { background: #fce7f3; color: #be185d; }
+    .tag-css { background: #e0f2fe; color: #0369a1; }
+    .tag-jsx { background: #dbeafe; color: #1d4ed8; }
+    .tag-admin { background: #fef3c7; color: #b45309; }
+    .tag-json { background: #dcfce7; color: #15803d; }
     .bullet-list {
-      padding-left: 18px;
-      margin-top: 6px;
+      list-style: none;
+      padding-left: 0;
     }
     .bullet-list li {
-      margin-bottom: 4px;
-      color: #334155;
+      position: relative;
+      padding-left: 18px;
+      margin-bottom: 6px;
+    }
+    .bullet-list li::before {
+      content: '•';
+      color: var(--primary);
+      position: absolute;
+      left: 2px;
+      font-weight: bold;
     }
     .highlight-box {
-      background: #ecfdf5;
-      border-left: 4px solid var(--green);
+      background: #fff7ed;
+      border-left: 4px solid var(--amber);
       padding: 14px 18px;
       border-radius: 0 8px 8px 0;
-      margin: 16px 0;
-      font-size: 0.88rem;
-      color: #065f46;
+      margin: 14px 0;
+      font-size: 0.92rem;
     }
     .code-block {
-      background: #0f172a;
-      color: #e2e8f0;
-      padding: 14px 18px;
-      border-radius: 8px;
-      font-family: 'Consolas', monospace;
-      font-size: 0.85rem;
-      overflow-x: auto;
+      background: #1A253C;
+      color: #f8fafc;
+      padding: 16px 20px;
+      border-radius: 10px;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.88rem;
+      line-height: 1.6;
       margin-top: 10px;
+      overflow-x: auto;
     }
   </style>
 </head>
@@ -202,31 +206,31 @@
     <!-- Header -->
     <header class="guide-header">
       <span class="badge-pill"><i class="fa-solid fa-code"></i> Master Code Map</span>
-      <h1>PRETUTE E-Commerce Platform - कोड स्ट्रक्चर व फ़ाइल एडिटिंग गाइड</h1>
+      <h1>PRETUTE E-Commerce Platform - Code Structure & File Editing Guide</h1>
       <p class="subtitle">
-        यह फ़ाइल आपके पूरे प्रोजेक्ट का मास्टर मैप है। अगर आपको कभी भी कोई टेक्स्ट, फ़ोटो, रंग, बटन, या एडमिन पैनल का फ़ीचर बदलना हो, तो यहाँ से फ़ाइल का नाम देखकर सीधे बदलाव कर सकते हैं।
+        This document provides a complete map of the codebase. Whenever you need to customize text, photography, styles, buttons, or admin panel configurations, consult this guide to locate the exact source files.
       </p>
 
       <div class="quick-nav">
-        <a href="#css-section" class="nav-btn">🎨 CSS &amp; रंग</a>
-        <a href="#storefront-section" class="nav-btn">🖥️ होमपेज सेक्शंस</a>
-        <a href="#product-section" class="nav-btn">🛍️ 6-Angle प्रोडक्ट पेज</a>
-        <a href="#admin-section" class="nav-btn">⚙️ एडमिन पैनल</a>
-        <a href="#database-section" class="nav-btn">📦 JSON डेटाबेस</a>
-        <a href="#assets-section" class="nav-btn">🖼️ फ़ोटो व इमेजेस</a>
-        <a href="#cheat-sheet" class="nav-btn">⚡ क्विक चीट शीट</a>
+        <a href="#css-section" class="nav-btn">🎨 CSS & Styles</a>
+        <a href="#storefront-section" class="nav-btn">🖥️ Storefront Sections</a>
+        <a href="#product-section" class="nav-btn">🛍️ 6-Angle Product Page</a>
+        <a href="#admin-section" class="nav-btn">⚙️ Admin Panel</a>
+        <a href="#database-section" class="nav-btn">📦 JSON Database</a>
+        <a href="#assets-section" class="nav-btn">🖼️ Assets & Photos</a>
+        <a href="#cheat-sheet" class="nav-btn">⚡ Quick Reference</a>
       </div>
     </header>
 
     <!-- 1. CSS & Design -->
     <section class="section-card" id="css-section">
-      <h2 class="section-title"><i class="fa-solid fa-palette"></i> 1. डिज़ाइन, रंग और फ़ॉन्ट्स (CSS Files)</h2>
+      <h2 class="section-title"><i class="fa-solid fa-palette"></i> 1. Design, Styling & Fonts (CSS Files)</h2>
       <table class="guide-table">
         <thead>
           <tr>
-            <th style="width: 32%;">फ़ाइल का नाम व पाथ</th>
-            <th style="width: 20%;">प्रकार</th>
-            <th>इसमें आप क्या-क्या बदल सकते हैं?</th>
+            <th style="width: 32%;">File Path</th>
+            <th style="width: 20%;">Type</th>
+            <th>Customization Scope</th>
           </tr>
         </thead>
         <tbody>
@@ -235,10 +239,10 @@
             <td><span class="tag tag-css">Storefront CSS</span></td>
             <td>
               <ul class="bullet-list">
-                <li><strong>ब्रांड कलर्स:</strong> मुख्य गुलाबी रंग (<span style="color:#FF5B7F; font-weight:700;">#FF5B7F</span>), हेडर का डार्क नेवी (<span style="color:#1A253C; font-weight:700;">#1A253C</span>), ग्रीन प्राइस (<span style="color:#22c55e; font-weight:700;">#22c55e</span>)।</li>
-                <li><strong>Google Fonts:</strong> 'Outfit' और 'Inter' फ़ॉन्ट साइज़ और लाइन-हाइट।</li>
-                <li><strong>बटन व कार्ड स्टाइल:</strong> Add to Cart, Buy Now, कार्ड शैडो और होवर एनिमेशन्स।</li>
-                <li><strong>मोबाइल रिस्पॉन्सिव:</strong> मोबाइल स्क्रीन के लिए कॉलम्स और पैडिंग।</li>
+                <li><strong>Brand Colors:</strong> Primary accent (<span style="color:#FF5B7F; font-weight:700;">#FF5B7F</span>), deep navy (<span style="color:#1A253C; font-weight:700;">#1A253C</span>), price green (<span style="color:#22c55e; font-weight:700;">#22c55e</span>).</li>
+                <li><strong>Typography:</strong> 'Outfit' and 'Inter' font scale and hierarchy.</li>
+                <li><strong>Buttons & Cards:</strong> Add to Cart, Buy Now, shadows and hover micro-interactions.</li>
+                <li><strong>Responsive Grid:</strong> Mobile breakpoint adaptations and layouts.</li>
               </ul>
             </td>
           </tr>
@@ -247,9 +251,9 @@
             <td><span class="tag tag-admin">Admin Panel CSS</span></td>
             <td>
               <ul class="bullet-list">
-                <li>एडमिन साइडबार का डार्क कलर (<span style="color:#1A253C; font-weight:700;">#1A253C</span>)।</li>
-                <li>एडमिन की टेबल्स, फ़ॉर्म्स, इनपुट बॉक्सेज़ और 6-Angle फ़ोटो स्लॉट्स की स्टाइल।</li>
-                <li>स्टेटस पिल्स के रंग (Active, In Stock, SALE!)।</li>
+                <li>Admin sidebar themes and dark backgrounds (<span style="color:#1A253C; font-weight:700;">#1A253C</span>).</li>
+                <li>Tables, form inputs, and 6-angle image upload preview grids.</li>
+                <li>Pill badges for status (Active, In Stock, Sale).</li>
               </ul>
             </td>
           </tr>
@@ -259,78 +263,78 @@
 
     <!-- 2. Storefront Components -->
     <section class="section-card" id="storefront-section">
-      <h2 class="section-title"><i class="fa-solid fa-layer-group"></i> 2. होमपेज के सेक्शंस (Storefront Sections - क्रम अनुसार)</h2>
+      <h2 class="section-title"><i class="fa-solid fa-layer-group"></i> 2. Storefront Sections (Sequence of Display)</h2>
       <p style="font-size:0.88rem; color:var(--muted); margin-bottom:12px;">
-        ये सभी सेक्शंस <span class="code-path">frontend/src/App.jsx</span> में इसी क्रम में लगे हुए हैं:
+        Mounted within <span class="code-path">frontend/src/App.jsx</span> in the following sequence:
       </p>
       <table class="guide-table">
         <thead>
           <tr>
-            <th style="width: 30%;">सेक्शन का नाम</th>
-            <th style="width: 32%;">फ़ाइल का पाथ</th>
-            <th>क्या-क्या बदल सकते हैं?</th>
+            <th style="width: 30%;">Section Name</th>
+            <th style="width: 32%;">File Path</th>
+            <th>Customization Scope</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>हेडर व अनाउंसमेंट</strong></td>
+            <td><strong>Header & Announcement</strong></td>
             <td><span class="code-path">frontend/src/components/common/Header.jsx</span></td>
-            <td>ऊपर की फ्री डिलीवरी पट्टी का टेक्स्ट, लोगो इमेज, सर्च बार, हेल्प फोन नंबर और ईमेल।</td>
+            <td>Announcement banner text, logo image, search bar, support hotline and email.</td>
           </tr>
           <tr>
-            <td><strong>नेविगेशन मेनू</strong></td>
+            <td><strong>Navigation Menu</strong></td>
             <td><span class="code-path">frontend/src/components/common/Navigation.jsx</span></td>
-            <td>मुख्य मेनू लिंक्स (Home, Categories, Latest, Deals, Contact)।</td>
+            <td>Primary navigation links (Home, Categories, Latest, Deals, Contact).</td>
           </tr>
           <tr>
-            <td><strong>कैटेगरी स्ट्रिप</strong></td>
+            <td><strong>Category Strip</strong></td>
             <td><span class="code-path">frontend/src/components/common/CategoryStrip.jsx</span></td>
-            <td>फ्लिपकार्ट स्टाइल की गोल कैटेगरी स्ट्रिप (Resin Art, DIY Kit, Candle आदि)।</td>
+            <td>Circular category badges (Resin Art, DIY Kits, Candles, etc.).</td>
           </tr>
           <tr>
             <td><strong>1. Hero Banner</strong></td>
             <td><span class="code-path">frontend/src/components/home/HeroBanner.jsx</span></td>
-            <td>ऑटो-स्लाइडिंग बड़े बैनर्स के हेडलाइन, ऑफर टेक्स्ट और "Shop Now" बटन लिंक।</td>
+            <td>Auto-sliding hero carousel slides, headlines, promos, and CTA links.</td>
           </tr>
           <tr>
             <td><strong>2. Value Props</strong></td>
             <td><span class="code-path">frontend/src/components/home/ValueProps.jsx</span></td>
-            <td>4 ट्रस्ट फ़ीचर्स (Free Express Shipping, 100% Authentic, Secure Checkout, 24/7 Support)।</td>
+            <td>4 trust features (Free Express Shipping, 100% Authentic, Secure Checkout, 24/7 Support).</td>
           </tr>
           <tr>
             <td><strong>3. Shop by Category</strong></td>
             <td><span class="code-path">frontend/src/components/home/CategorySlider.jsx</span></td>
-            <td>"Shop by Category" सेक्शन की हेडिंग, सब-हेडिंग और कैटेगरी कार्ड्स।</td>
+            <td>Category slider headline, description, and visual category tiles.</td>
           </tr>
           <tr>
             <td><strong>4. Our Latest Products</strong></td>
             <td><span class="code-path">frontend/src/components/home/LatestProducts.jsx</span></td>
-            <td>"Fresh Arrivals &amp; New Launches" हेडिंग और नए प्रोडक्ट्स (जैसे <strong>COASTAL TRAY</strong>) की लिस्ट।</td>
+            <td>Fresh arrivals grid featuring recently added products (e.g., Coastal Tray).</td>
           </tr>
           <tr>
             <td><strong>5. Featured Collections</strong></td>
             <td><span class="code-path">frontend/src/components/home/FeaturedProducts.jsx</span></td>
-            <td>होमपेज पर स्टार ⭐ मार्क किए हुए खास प्रोडक्ट्स की ग्रिड।</td>
+            <td>Curated grid of highlighted star products.</td>
           </tr>
           <tr>
-            <td><strong>6. Deals &amp; Coupons</strong></td>
+            <td><strong>6. Deals & Coupons</strong></td>
             <td><span class="code-path">frontend/src/components/home/DealCountdown.jsx</span></td>
-            <td>"Deal of the Day" का लाइव काउंटडाउन टाइमर और कूपन कोड्स (जैसे <code>PRETUTE20</code>)।</td>
+            <td>Deal of the Day countdown timer and promotional coupon codes.</td>
           </tr>
           <tr>
             <td><strong>7. Craft Philosophy</strong></td>
             <td><span class="code-path">frontend/src/components/home/PhilosophySection.jsx</span></td>
-            <td>"Our Craft Philosophy" और ब्रांड स्टोरी का टेक्स्ट।</td>
+            <td>Brand heritage story, artisan studio statement, and imagery.</td>
           </tr>
           <tr>
             <td><strong>8. Customer Reviews</strong></td>
             <td><span class="code-path">frontend/src/components/home/ReviewsSection.jsx</span></td>
-            <td>ग्राहकों के टेस्टीमोनियल्स, रिव्यू और 5-स्टार रेटिंग्स।</td>
+            <td>Customer testimonials, ratings, and verified review cards.</td>
           </tr>
           <tr>
-            <td><strong>फ़ुटर (Footer)</strong></td>
+            <td><strong>Footer</strong></td>
             <td><span class="code-path">frontend/src/components/common/Footer.jsx</span></td>
-            <td>कंपनी का परिचय, सोशल लिंक्स, कॉपीराइट, और एडमिन पैनल में जाने का "Back Panel" लिंक।</td>
+            <td>Company profile, social links, copyright notice, and Back Panel link.</td>
           </tr>
         </tbody>
       </table>
@@ -338,12 +342,12 @@
 
     <!-- 3. Product Detail & 6 Angles -->
     <section class="section-card" id="product-section">
-      <h2 class="section-title"><i class="fa-solid fa-gem"></i> 3. प्रोडक्ट डिटेल और 6-Angle गैलरी (WordPress Style)</h2>
+      <h2 class="section-title"><i class="fa-solid fa-gem"></i> 3. Product Detail & 6-Angle Gallery</h2>
       <table class="guide-table">
         <thead>
           <tr>
-            <th style="width: 32%;">फ़ाइल का नाम व पाथ</th>
-            <th>क्या है इसमें और क्या बदल सकते हैं?</th>
+            <th style="width: 32%;">File Path</th>
+            <th>Customization Scope</th>
           </tr>
         </thead>
         <tbody>
@@ -351,23 +355,23 @@
             <td><span class="code-path">frontend/src/components/product/ProductDetailModal.jsx</span></td>
             <td>
               <ul class="bullet-list">
-                <li><strong>6 Photos Gallery:</strong> मुख्य बड़ी तस्वीर + नीचे 6 थंबनेल कोण (क्लिक करने पर बड़ा कोण खुलता है)।</li>
-                <li><strong>SALE! Badge:</strong> कुआकुआ लोगो वाला गोल सेल बैज।</li>
-                <li><strong>Price Row:</strong> कटा हुआ मूल्य (MRP) और हरा सेलिंग प्राइस।</li>
-                <li><strong>COLOUR Swatches:</strong> 6 रंगों के क्लिकेबल बॉक्सेज़ (Blue, Cream, Green, Orange, Red, Yellow)।</li>
-                <li><strong>Quantity Counter:</strong> <code>[-] 1 [+]</code> बटन, <code>ADD TO CART</code> और <code>BUY NOW</code>।</li>
-                <li><strong>Metadata:</strong> SKU (<code>G118</code>), Categories, Subcategories, Tags, Brand।</li>
-                <li><strong>Related Products:</strong> नीचे अपने आप दिखने वाले सम्बंधित उत्पाद (WAVE TRAY, LOTUS DUO, आदि)।</li>
+                <li><strong>6-Angle Gallery:</strong> Main zoom preview with 6 angle thumbnails below.</li>
+                <li><strong>Sale Badge:</strong> Circular branded promotional indicator.</li>
+                <li><strong>Pricing Display:</strong> Original strike-through MRP and green selling price.</li>
+                <li><strong>Color Swatches:</strong> Clickable color variants with live feedback.</li>
+                <li><strong>Cart Actions:</strong> Quantity selector, Add to Cart, and Buy Now triggers.</li>
+                <li><strong>Metadata:</strong> SKU, Category, Sub-Category, Tags, and Brand.</li>
+                <li><strong>Related Products:</strong> Automated recommendations section.</li>
               </ul>
             </td>
           </tr>
           <tr>
             <td><span class="code-path">frontend/src/components/product/ProductCard.jsx</span></td>
-            <td>ग्रिड में दिखने वाला प्रोडक्ट कार्ड, F-Assured बैज, डिस्काउंट % बैज, दिल वाला विशलिस्ट बटन, और Quick View बटन।</td>
+            <td>Catalog card layout, Assured badge, discount badge, wishlist heart button, and Quick View modal trigger.</td>
           </tr>
           <tr>
             <td><span class="code-path">frontend/src/components/product/CategoryView.jsx</span></td>
-            <td>किसी कैटेगरी पर क्लिक करने पर खुलने वाला फ़िल्टर व सॉर्टिंग पेज (Price Filter, Rating, Newest First)।</td>
+            <td>Category filtered listing view with sorting (price, rating, newness).</td>
           </tr>
         </tbody>
       </table>
@@ -375,59 +379,59 @@
 
     <!-- 4. Admin Panel -->
     <section class="section-card" id="admin-section">
-      <h2 class="section-title"><i class="fa-solid fa-user-shield"></i> 4. एडमिन पैनल (Admin Panel Architecture)</h2>
+      <h2 class="section-title"><i class="fa-solid fa-user-shield"></i> 4. Admin Panel Architecture</h2>
       <div class="highlight-box">
-        <strong>मुख्य एडमिन फ़ाइल:</strong> <span class="code-path">frontend/src/components/admin/AdminLayout.jsx</span>
-        <br>एडमिन पैनल का पूरा कंट्रोल (PIN, 6-Angle फ़ोटो स्लॉट्स, प्रोडक्ट्स, कैटेगरीज, कूपन्स, ऑर्डर्स) इसी अकेली फ़ाइल में है।
+        <strong>Primary Admin File:</strong> <span class="code-path">frontend/src/components/admin/AdminLayout.jsx</span>
+        <br>All admin operations (PIN authentication, 6-angle image management, products, categories, coupons, and orders) are contained within this component.
       </div>
       <table class="guide-table">
         <thead>
           <tr>
-            <th style="width: 30%;">फ़ीचर</th>
-            <th style="width: 30%;">फ़ाइल में कहाँ है?</th>
-            <th>क्या बदल सकते हैं?</th>
+            <th style="width: 30%;">Feature</th>
+            <th style="width: 30%;">Location in Code</th>
+            <th>Customization Scope</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td><strong>Admin PIN</strong></td>
-            <td>लाइन 11-14 और <code>loginAdmin</code></td>
-            <td>डिफ़ॉल्ट पिन <code>2570</code> है।</td>
+            <td>Lines 11-14 and <code>loginAdmin</code></td>
+            <td>Default PIN: <code>2570</code>.</td>
           </tr>
           <tr>
             <td><strong>6-Angle Photo Slots</strong></td>
-            <td>Tab 1: <code>productModalTab === 'photos'</code></td>
-            <td>हर एंगल के लिए 6 स्लॉट्स (फ़ोटो अपलोड बटन, WordPress URL पेस्ट इनपुट, और प्रीव्यू)।</td>
+            <td>Tab 2: <code>productModalTab === 'photos'</code></td>
+            <td>Six perspective slots with file upload and URL paste support.</td>
           </tr>
           <tr>
             <td><strong>1-Click Coastal Tray</strong></td>
             <td><code>handleFillCoastalTemplate</code></td>
-            <td>1-क्लिक में Coastal Tray की 6 तस्वीरें स्लॉट्स में भरने का लॉजिक।</td>
+            <td>One-click auto-fill utility for the 6 Coastal Tray demonstration photos.</td>
           </tr>
           <tr>
-            <td><strong>WordPress Catalog Fields</strong></td>
-            <td>Tab 2: <code>productModalTab === 'info'</code></td>
-            <td>Product Title, SKU (जैसे <code>G118</code>), Brand, Category, Sub-Category, Tags।</td>
+            <td><strong>Catalog Fields</strong></td>
+            <td>Tab 1: <code>productModalTab === 'info'</code></td>
+            <td>Product Title, SKU, Brand, Category, Sub-Category, and Tags.</td>
           </tr>
           <tr>
-            <td><strong>Pricing &amp; Colours</strong></td>
+            <td><strong>Pricing & Colors</strong></td>
             <td>Tab 3: <code>productModalTab === 'pricing'</code></td>
-            <td>सेलिंग प्राइस, MRP, डिस्काउंट कैलकुलेटर और लाइव कलर बॉक्सेज़ (Blue, Cream, Green...)।</td>
+            <td>Selling Price, MRP, discount percentage, and color palette swatches.</td>
           </tr>
           <tr>
-            <td><strong>Description &amp; Specs</strong></td>
+            <td><strong>Description & Specs</strong></td>
             <td>Tab 4: <code>productModalTab === 'details'</code></td>
-            <td>Short Description, Detailed Story, Dimensions, Material, Care Instructions।</td>
+            <td>Short description, detailed craftsmanship story, dimensions, and care notes.</td>
           </tr>
           <tr>
             <td><strong>Our Latest Products Tab</strong></td>
             <td><code>activeTab === 'latest_products'</code></td>
-            <td>"Our Latest Products" में प्रोडक्ट्स जोड़ने और मैनेज करने की टेबल।</td>
+            <td>Product inventory table with direct addition, edit, and deletion capabilities.</td>
           </tr>
           <tr>
-            <td><strong>Banners, Categories &amp; Coupons</strong></td>
+            <td><strong>Banners, Categories & Coupons</strong></td>
             <td><code>activeTab === 'banners' / 'categories' / 'coupons'</code></td>
-            <td>बैनर्स, कैटेगरीज और कूपन्स बनाने और डिलीट करने के फॉर्म्स।</td>
+            <td>Forms for adding and editing banners, category taxonomy, and discount codes.</td>
           </tr>
         </tbody>
       </table>
@@ -435,40 +439,40 @@
 
     <!-- 5. Database & JSON -->
     <section class="section-card" id="database-section">
-      <h2 class="section-title"><i class="fa-solid fa-database"></i> 5. डेटा फ़ाइल्स (बिना कोड बदले डेटा कहाँ बदलें?)</h2>
+      <h2 class="section-title"><i class="fa-solid fa-database"></i> 5. Data Stores & JSON Files</h2>
       <table class="guide-table">
         <thead>
           <tr>
-            <th style="width: 32%;">फ़ाइल का पाथ</th>
-            <th style="width: 22%;">डेटा का प्रकार</th>
-            <th>विवरण</th>
+            <th style="width: 32%;">File Path</th>
+            <th style="width: 22%;">Data Type</th>
+            <th>Description</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td><span class="code-path">backend/data/products.json</span></td>
             <td><span class="tag tag-json">Products Database</span></td>
-            <td>सारे 18 प्रोडक्ट्स (जैसे <strong>COASTAL TRAY</strong>, <strong>WAVE TRAY</strong>, <strong>LOTUS DUO</strong>, <strong>OVAL PEARL TRAY</strong>, <strong>PEBBLE BOWL</strong>) की कीमतें, 6 तस्वीरें, स्टॉक और विवरण।</td>
+            <td>Primary product inventory records including 6-angle image paths, pricing, inventory stock, and descriptions.</td>
           </tr>
           <tr>
             <td><span class="code-path">backend/data/categories.json</span></td>
             <td><span class="tag tag-json">Categories Database</span></td>
-            <td>सारी कैटेगरीज (Resin Art, Corporate Gifts, Home Decor आदि) की लिस्ट।</td>
+            <td>Category listings (Resin Art, Corporate Gifts, Home Decor, etc.).</td>
           </tr>
           <tr>
             <td><span class="code-path">backend/data/banners.json</span></td>
             <td><span class="tag tag-json">Banners Database</span></td>
-            <td>होमपेज बैनर्स की तस्वीरें, हेडलाइन और लिंक्स।</td>
+            <td>Hero carousel slides, headlines, and call-to-action destinations.</td>
           </tr>
           <tr>
             <td><span class="code-path">backend/data/coupons.json</span></td>
             <td><span class="tag tag-json">Coupons Database</span></td>
-            <td>डिस्काउंट कूपन कोड्स (जैसे <code>PRETUTE20</code>)।</td>
+            <td>Active promotional coupons (e.g., <code>PRETUTE20</code>).</td>
           </tr>
           <tr>
             <td><span class="code-path">frontend/src/data/initialData.js</span></td>
             <td><span class="tag tag-jsx">Frontend Fallback</span></td>
-            <td>अगर बैकएंड सर्वर कभी बंद हो, तो वेबसाइट इस फ़ाइल से प्रोडक्ट्स और कैटेगरीज दिखाती है।</td>
+            <td>Offline seed data ensuring the storefront and admin panel function smoothly even if the backend is unreachable.</td>
           </tr>
         </tbody>
       </table>
@@ -476,61 +480,61 @@
 
     <!-- 6. Assets & Photos -->
     <section class="section-card" id="assets-section">
-      <h2 class="section-title"><i class="fa-solid fa-images"></i> 6. फ़ोटो और इमेज फ़ाइल्स (Assets Folder)</h2>
+      <h2 class="section-title"><i class="fa-solid fa-images"></i> 6. Assets & Photography Folder</h2>
       <p style="font-size:0.9rem; margin-bottom:12px;">
-        सारी तस्वीरें इस फ़ोल्डर में रखी जाती हैं: <span class="code-path">frontend/public/assets/</span>
+        Media assets are located in: <span class="code-path">frontend/public/assets/</span>
       </p>
       <table class="guide-table">
         <thead>
           <tr>
-            <th style="width: 32%;">फ़ाइल का नाम</th>
-            <th>कहाँ इस्तेमाल होती है?</th>
+            <th style="width: 32%;">File Name</th>
+            <th>Usage</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td><span class="code-path">coastal_tray_1.jpg</span></td>
-            <td>Coastal Tray का मुख्य कोण (स्टारफ़िश सामने से - Slot 1)</td>
+            <td>Coastal Tray Primary Front View (Slot 1)</td>
           </tr>
           <tr>
             <td><span class="code-path">coastal_tray_2.jpg</span></td>
-            <td>Coastal Tray का 45° साइड कोण (Slot 2)</td>
+            <td>Coastal Tray 45° Perspective Angle (Slot 2)</td>
           </tr>
           <tr>
             <td><span class="code-path">coastal_tray_3.jpg</span></td>
-            <td>Coastal Tray का रिम / किनारा कोण (Slot 3)</td>
+            <td>Coastal Tray Rim & Detail Texture (Slot 3)</td>
           </tr>
           <tr>
             <td><span class="code-path">coastal_tray_4.jpg</span></td>
-            <td>Coastal Tray का बैक टेक्सचर कोण (Slot 4)</td>
+            <td>Coastal Tray Rear Base Finish (Slot 4)</td>
           </tr>
           <tr>
             <td><span class="code-path">coastal_tray_5.jpg</span></td>
-            <td>Coastal Tray का स्काई ब्लू कलर वैरिएंट (Slot 5)</td>
+            <td>Coastal Tray Sky Blue Variant (Slot 5)</td>
           </tr>
           <tr>
             <td><span class="code-path">coastal_tray_6.jpg</span></td>
-            <td>Coastal Tray का येलो कलर वैरिएंट (Slot 6)</td>
+            <td>Coastal Tray Ochre Yellow Variant (Slot 6)</td>
           </tr>
           <tr>
             <td><span class="code-path">wave_tray.jpg</span></td>
-            <td>Wave Tray प्रोडक्ट इमेज</td>
+            <td>Wave Tray Product Image</td>
           </tr>
           <tr>
             <td><span class="code-path">lotus_duo.jpg</span></td>
-            <td>Lotus Duo प्रोडक्ट इमेज</td>
+            <td>Lotus Duo Product Image</td>
           </tr>
           <tr>
             <td><span class="code-path">oval_pearl_tray.jpg</span></td>
-            <td>Oval Pearl Tray प्रोडक्ट इमेज</td>
+            <td>Oval Pearl Tray Product Image</td>
           </tr>
           <tr>
             <td><span class="code-path">pebble_bowl.jpg</span></td>
-            <td>Pebble Bowl प्रोडक्ट इमेज</td>
+            <td>Pebble Bowl Product Image</td>
           </tr>
           <tr>
             <td><span class="code-path">Logo.png</span> / <span class="code-path">kuakua-logo.png</span></td>
-            <td>ब्रांड लोगो और SALE! बैज लोगो</td>
+            <td>Storefront brand logo & circular Sale badge icon</td>
           </tr>
         </tbody>
       </table>
@@ -538,45 +542,45 @@
 
     <!-- 7. Quick Cheat Sheet -->
     <section class="section-card" id="cheat-sheet">
-      <h2 class="section-title"><i class="fa-solid fa-bolt"></i> 7. क्विक चीट शीट: "मुझे X बदलना है, तो मैं कहाँ जाऊं?"</h2>
+      <h2 class="section-title"><i class="fa-solid fa-bolt"></i> 7. Quick Reference: "How do I change X?"</h2>
       <table class="guide-table">
         <thead>
           <tr>
-            <th style="width: 35%;">काम (Task)</th>
-            <th style="width: 35%;">कौन सी फ़ाइल खोलें?</th>
-            <th>क्या करें?</th>
+            <th style="width: 35%;">Objective</th>
+            <th style="width: 35%;">File to Modify</th>
+            <th>Guidance</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>वेबसाइट का रंग (Color) बदलना</strong></td>
+            <td><strong>Change Brand Color Scheme</strong></td>
             <td><span class="code-path">frontend/src/style.css</span></td>
-            <td>सर्च करें <code>--color-primary</code> और <code>#FF5B7F</code> को अपने मनपसंद हेक्स कोड से बदलें।</td>
+            <td>Update <code>--color-primary</code> and <code>#FF5B7F</code> with your target hex code.</td>
           </tr>
           <tr>
-            <td><strong>10 सेकंड वाले लॉगिन पॉपअप का टाइम बदलना</strong></td>
+            <td><strong>Modify Login Popup Timing</strong></td>
             <td><span class="code-path">frontend/src/App.jsx</span></td>
-            <td>लाइन 63 पर जाएं: <code>10000</code> को <code>5000</code> (5 सेकंड) या जो चाहें कर दें।</td>
+            <td>Change the timer threshold (e.g., <code>10000</code> ms to <code>5000</code> ms).</td>
           </tr>
           <tr>
-            <td><strong>एडमिन का पासवर्ड / PIN बदलना</strong></td>
+            <td><strong>Change Admin PIN</strong></td>
             <td><span class="code-path">backend/routes/admin.js</span></td>
-            <td>यहाँ <code>2570</code> को अपने 4-डिजिट PIN में बदलें।</td>
+            <td>Replace default <code>2570</code> with your designated 4-digit code.</td>
           </tr>
           <tr>
-            <td><strong>नया प्रोडक्ट सीधे डेटाबेस में डालना</strong></td>
+            <td><strong>Add Product Directly to Database</strong></td>
             <td><span class="code-path">backend/data/products.json</span></td>
-            <td>सबसे ऊपर नया प्रोडक्ट JSON जोड़ें।</td>
+            <td>Append a new product entry at the top of the JSON array.</td>
           </tr>
           <tr>
-            <td><strong>'Our Latest Products' की हेडिंग बदलना</strong></td>
+            <td><strong>Update Latest Products Section Heading</strong></td>
             <td><span class="code-path">frontend/src/components/home/LatestProducts.jsx</span></td>
-            <td>यहाँ हेडिंग या सब-हेडिंग का टेक्स्ट बदलें।</td>
+            <td>Edit the title or subtitle strings directly in JSX.</td>
           </tr>
           <tr>
-            <td><strong>फ़ुटर का फोन नंबर या पता बदलना</strong></td>
+            <td><strong>Update Footer Contact Information</strong></td>
             <td><span class="code-path">frontend/src/components/common/Footer.jsx</span></td>
-            <td>यहाँ फोन, ईमेल, पता और सोशल मीडिया लिंक्स बदलें।</td>
+            <td>Update telephone numbers, email addresses, and social handles.</td>
           </tr>
         </tbody>
       </table>
@@ -584,26 +588,26 @@
 
     <!-- 8. Commands -->
     <section class="section-card">
-      <h2 class="section-title"><i class="fa-solid fa-terminal"></i> 8. प्रोजेक्ट को रन कैसे करें?</h2>
+      <h2 class="section-title"><i class="fa-solid fa-terminal"></i> 8. Running the Application</h2>
       <div class="code-block">
-# 1. पूरा प्रोजेक्ट एक साथ चलाने के लिए (Root Directory me):
+# 1. Run full application concurrently:
 npm run dev
 
-# 2. अगर सिर्फ Backend चलाना हो:
+# 2. Run backend server only:
 cd backend
 npm start
 
-# 3. अगर सिर्फ Frontend चलाना हो:
+# 3. Run frontend development server only:
 cd frontend
 npm run dev
 
-# 4. प्रोडक्शन बिल्ड चेक करने के लिए:
+# 4. Create production build:
 cd frontend
 npm run build
       </div>
       <p style="margin-top:14px; font-size:0.88rem; color:var(--muted);">
-        • वेबसाइट: <strong>http://localhost:5173/</strong><br>
-        • एडमिन बैक पैनल: <strong>http://localhost:5173/#admin</strong> (PIN: <strong>2570</strong>)
+        • Storefront: <strong>http://localhost:5173/</strong><br>
+        • Admin Back Panel: <strong>http://localhost:5173/#admin</strong> (PIN: <strong>2570</strong>)
       </p>
     </section>
 

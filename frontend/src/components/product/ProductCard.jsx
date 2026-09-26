@@ -68,7 +68,6 @@ const ProductCard = ({ product }) => {
       <div
         className="prod-image-wrapper"
         onClick={() => navigateTo('details', product.id)}
-        style={{ cursor: 'pointer', position: 'relative', overflow: 'hidden', height: '240px', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
       >
         <img
           src={imgSrc}

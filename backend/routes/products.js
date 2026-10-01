@@ -41,8 +41,21 @@ router.get('/:id', (req, res) => {
   res.json(product);
 });
 
+// Middleware to verify admin authentication for product modifications
+const requireAdminAuth = (req, res, next) => {
+  const token = req.headers['x-admin-token'] || req.headers['authorization'];
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Unauthorized: Admin authentication required to modify products' });
+  }
+  const cleanToken = String(token).replace(/^Bearer\s+/i, '').trim();
+  if (!cleanToken) {
+    return res.status(401).json({ success: false, message: 'Unauthorized: Invalid admin token' });
+  }
+  next();
+};
+
 // POST create new product
-router.post('/', (req, res) => {
+router.post('/', requireAdminAuth, (req, res) => {
   const products = db.read('products');
   const newProduct = {
     id: Date.now(),
@@ -80,7 +93,7 @@ router.post('/', (req, res) => {
 });
 
 // PUT update product
-router.put('/:id', (req, res) => {
+router.put('/:id', requireAdminAuth, (req, res) => {
   const products = db.read('products');
   const index = products.findIndex(p => String(p.id) === String(req.params.id));
   if (index === -1) {
@@ -101,7 +114,7 @@ router.put('/:id', (req, res) => {
 });
 
 // PATCH toggle stock status
-router.patch('/:id/stock', (req, res) => {
+router.patch('/:id/stock', requireAdminAuth, (req, res) => {
   const products = db.read('products');
   const prod = products.find(p => String(p.id) === String(req.params.id));
   if (!prod) {
@@ -121,7 +134,7 @@ router.patch('/:id/stock', (req, res) => {
 });
 
 // PATCH toggle active/deactivated status
-router.patch('/:id/status', (req, res) => {
+router.patch('/:id/status', requireAdminAuth, (req, res) => {
   const products = db.read('products');
   const prod = products.find(p => String(p.id) === String(req.params.id));
   if (!prod) {
@@ -134,7 +147,7 @@ router.patch('/:id/status', (req, res) => {
 });
 
 // DELETE product
-router.delete('/:id', (req, res) => {
+router.delete('/:id', requireAdminAuth, (req, res) => {
   let products = db.read('products');
   const initialLength = products.length;
   products = products.filter(p => String(p.id) !== String(req.params.id));

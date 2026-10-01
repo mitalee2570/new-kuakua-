@@ -32,11 +32,26 @@ function setLocal(key, data) {
   }
 }
 
+function getAdminAuthToken() {
+  if (typeof window === 'undefined') return null;
+  return sessionStorage.getItem('pretute_admin_token') || localStorage.getItem('pretute_admin_token') || null;
+}
+
+export function verifyAdminSession() {
+  const token = getAdminAuthToken();
+  if (!token) {
+    throw new Error('Authentication required: You must be logged into the Admin Panel to perform this action.');
+  }
+  return token;
+}
+
 async function request(endpoint, options = {}) {
   try {
     const url = `${API_BASE_URL}${endpoint}`;
+    const token = getAdminAuthToken();
     const headers = {
       'Content-Type': 'application/json',
+      ...(token ? { 'x-admin-token': token, 'Authorization': `Bearer ${token}` } : {}),
       ...(options.headers || {})
     };
 
@@ -88,6 +103,7 @@ export const api = {
     }
   },
   createProduct: async (productData) => {
+    verifyAdminSession();
     try {
       const created = await request('/products', { method: 'POST', body: JSON.stringify(productData) });
       const current = getLocal('products', initialProducts);
@@ -95,6 +111,9 @@ export const api = {
       setLocal('products', updated);
       return created;
     } catch (err) {
+      if (err.message && err.message.includes('Authentication required')) {
+        throw err;
+      }
       console.warn('Backend offline, saving product locally:', err.message);
       const newProduct = {
         id: Date.now(),
@@ -139,6 +158,7 @@ export const api = {
     }
   },
   updateProduct: async (id, productData) => {
+    verifyAdminSession();
     try {
       const updated = await request(`/products/${id}`, { method: 'PUT', body: JSON.stringify(productData) });
       const current = getLocal('products', initialProducts);
@@ -146,6 +166,9 @@ export const api = {
       setLocal('products', list);
       return updated;
     } catch (err) {
+      if (err.message && err.message.includes('Authentication required')) {
+        throw err;
+      }
       console.warn('Backend offline, updating product locally:', err.message);
       const current = getLocal('products', initialProducts);
       const list = current.map(p => String(p.id) === String(id) ? { ...p, ...productData } : p);
@@ -154,12 +177,16 @@ export const api = {
     }
   },
   toggleProductStock: async (id) => {
+    verifyAdminSession();
     try {
       const updated = await request(`/products/${id}/stock`, { method: 'PATCH' });
       const current = getLocal('products', initialProducts);
       setLocal('products', current.map(p => String(p.id) === String(id) ? updated : p));
       return updated;
-    } catch (_err) {
+    } catch (err) {
+      if (err.message && err.message.includes('Authentication required')) {
+        throw err;
+      }
       const current = getLocal('products', initialProducts);
       const list = current.map(p => {
         if (String(p.id) === String(id)) {
@@ -173,12 +200,16 @@ export const api = {
     }
   },
   toggleProductStatus: async (id) => {
+    verifyAdminSession();
     try {
       const updated = await request(`/products/${id}/status`, { method: 'PATCH' });
       const current = getLocal('products', initialProducts);
       setLocal('products', current.map(p => String(p.id) === String(id) ? updated : p));
       return updated;
-    } catch (_err) {
+    } catch (err) {
+      if (err.message && err.message.includes('Authentication required')) {
+        throw err;
+      }
       const current = getLocal('products', initialProducts);
       const list = current.map(p => {
         if (String(p.id) === String(id)) {
@@ -191,12 +222,16 @@ export const api = {
     }
   },
   deleteProduct: async (id) => {
+    verifyAdminSession();
     try {
       const res = await request(`/products/${id}`, { method: 'DELETE' });
       const current = getLocal('products', initialProducts);
       setLocal('products', current.filter(p => String(p.id) !== String(id)));
       return res;
-    } catch (_err) {
+    } catch (err) {
+      if (err.message && err.message.includes('Authentication required')) {
+        throw err;
+      }
       const current = getLocal('products', initialProducts);
       setLocal('products', current.filter(p => String(p.id) !== String(id)));
       return { success: true, message: 'Deleted locally' };

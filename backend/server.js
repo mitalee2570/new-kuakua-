@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 5000;
 app.use(cors({
   origin: '*', // Allow requests from any frontend port/domain
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-admin-token']
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));

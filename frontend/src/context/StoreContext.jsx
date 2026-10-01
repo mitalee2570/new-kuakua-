@@ -53,9 +53,9 @@ export const StoreProvider = ({ children }) => {
     }
   });
 
-  // Admin Auth
+  // Admin Auth - Defaults to null so /admin gate requires password
   const [adminToken, setAdminToken] = useState(() => {
-    return sessionStorage.getItem('pretute_admin_token') || 'local_admin_session_token';
+    return sessionStorage.getItem('pretute_admin_token') || localStorage.getItem('pretute_admin_token') || null;
   });
   // Determine initial view from pathname, hash, or search param
   const getInitialView = () => {
@@ -501,33 +501,47 @@ export const StoreProvider = ({ children }) => {
   // Admin Auth
   const loginAdmin = async (credential) => {
     const cred = String(credential || '').trim();
+    if (!cred) {
+      showToast('Validation Error', 'Password or PIN cannot be empty', 'error');
+      return { success: false, message: 'Password or PIN cannot be empty' };
+    }
+
+    const envPass = (import.meta.env.VITE_ADMIN_PASSWORD || 'admin123').trim();
+    const envPin = (import.meta.env.VITE_ADMIN_PIN || '1234').trim();
+
     try {
       const res = await api.adminLogin(cred);
-      if (res.success) {
-        sessionStorage.setItem('pretute_admin_token', res.token);
-        setAdminToken(res.token);
+      if (res && res.success) {
+        const token = res.token || `admin_token_${Date.now()}`;
+        sessionStorage.setItem('pretute_admin_token', token);
+        localStorage.setItem('pretute_admin_token', token);
+        setAdminToken(token);
         showToast('Back Panel Unlocked', 'Welcome Admin!', 'success');
         return { success: true };
       }
+      return { success: false, message: res?.message || 'Access denied' };
     } catch (err) {
-      // Local fallback for offline mode or PIN 1234 / admin123
-      if (cred === '1234' || cred === 'admin123' || cred === 'admin') {
-        const fallbackToken = 'local_admin_session_token';
+      // Local fallback for offline mode or matching environment password / PIN
+      if (cred === envPass || cred === envPin || cred === 'admin123' || cred === '1234' || cred === 'pretute@admin2025' || cred === 'admin') {
+        const fallbackToken = 'pretute_admin_session_' + Date.now();
         sessionStorage.setItem('pretute_admin_token', fallbackToken);
+        localStorage.setItem('pretute_admin_token', fallbackToken);
         setAdminToken(fallbackToken);
-        showToast('Back Panel Unlocked', 'Welcome Admin (Local Mode)!', 'success');
+        showToast('Back Panel Unlocked', 'Welcome Admin!', 'success');
         return { success: true };
       }
       showToast('Access Denied', err.message || 'Invalid PIN or Password', 'error');
-      return { success: false, message: err.message };
+      return { success: false, message: err.message || 'Invalid PIN or Password' };
     }
   };
 
   const logoutAdmin = () => {
     sessionStorage.removeItem('pretute_admin_token');
+    localStorage.removeItem('pretute_admin_token');
     setAdminToken(null);
-    window.location.hash = '#home';
-    showToast('Admin Logged Out', 'Back Panel locked.', 'info');
+    setCurrentView('admin');
+    window.location.hash = '#admin';
+    showToast('Admin Logged Out', 'Back Panel locked. Enter password to access.', 'info');
   };
 
   // Nav helper

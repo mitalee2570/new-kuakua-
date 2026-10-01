@@ -9,6 +9,7 @@ const AdminLayout = () => {
 
   // Auth state
   const [pinInput, setPinInput] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
 
@@ -336,14 +337,26 @@ const AdminLayout = () => {
   }, [adminToken]);
 
   const handleLoginSubmit = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
+    const cleanPin = pinInput.trim();
+    if (!cleanPin) {
+      setAuthError('Please enter the Admin Password or PIN.');
+      return;
+    }
     setAuthLoading(true);
     setAuthError('');
-    const res = await loginAdmin(pinInput);
-    if (!res.success) {
-      setAuthError(res.message || 'Invalid PIN or Password');
+    try {
+      const res = await loginAdmin(cleanPin);
+      if (!res || !res.success) {
+        setAuthError((res && res.message) || 'Invalid Admin Password or PIN. Access denied.');
+      } else {
+        setPinInput('');
+      }
+    } catch (err) {
+      setAuthError(err.message || 'Authentication failed. Please check credentials.');
+    } finally {
+      setAuthLoading(false);
     }
-    setAuthLoading(false);
   };
 
   // Product Actions
@@ -616,32 +629,80 @@ const AdminLayout = () => {
   // 1. If not authenticated, render Login Gate
   if (!adminToken) {
     return (
-      <div className="admin-auth-overlay" id="authOverlay" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', padding: '20px' }}>
-        <div className="auth-card" style={{ maxWidth: '420px', width: '100%', background: '#fff', padding: '32px', borderRadius: '16px', boxShadow: '0 10px 30px rgba(0,0,0,0.1)', textAlign: 'center' }}>
+      <div className="admin-auth-overlay" id="authOverlay" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+        <div className="auth-card" style={{ maxWidth: '420px', width: '100%', background: '#fff', padding: '36px 30px', borderRadius: '18px', boxShadow: '0 20px 45px rgba(15,23,42,0.18)', textAlign: 'center', position: 'relative' }}>
           <div className="auth-header" style={{ marginBottom: '24px' }}>
-            <div className="auth-logo-badge" style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#fff1f2', color: 'var(--color-primary)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.6rem', marginBottom: '12px' }}>
+            <div className="auth-logo-badge" style={{ width: '60px', height: '60px', borderRadius: '16px', background: 'linear-gradient(135deg, #fff1f2, #ffe4e6)', color: 'var(--color-primary)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.75rem', marginBottom: '14px', boxShadow: '0 6px 14px rgba(244,63,94,0.18)' }}>
               <i className="fa-solid fa-shield-halved"></i>
             </div>
-            <h2 className="auth-title" style={{ margin: 0, color: '#1A253C' }}>PRETUTE Admin</h2>
-            <p className="auth-subtitle" style={{ color: '#64748b', fontSize: '0.88rem', margin: '4px 0 0 0' }}>Store Management & Back Panel Access</p>
+            <h2 className="auth-title" style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.3px' }}>Admin Authentication</h2>
+            <p className="auth-subtitle" style={{ color: '#64748b', fontSize: '0.88rem', margin: '6px 0 0 0' }}>Enter your security password or PIN to unlock the store back panel</p>
           </div>
 
           <form className="auth-form" id="adminLoginForm" onSubmit={handleLoginSubmit}>
-            <div className="form-group" style={{ marginBottom: '18px', textAlign: 'left' }}>
-              <label htmlFor="adminPassInput" style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#475569', marginBottom: '6px' }}>Password or PIN</label>
-              <div className="auth-input-wrapper" style={{ position: 'relative' }}>
+            <div className="form-group" style={{ marginBottom: '20px', textAlign: 'left' }}>
+              <label htmlFor="adminPassInput" style={{ display: 'block', fontSize: '0.84rem', fontWeight: 600, color: '#334155', marginBottom: '8px' }}>
+                Admin Password or PIN
+              </label>
+              <div className="auth-input-wrapper" style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <i className="fa-solid fa-lock" style={{ position: 'absolute', left: '14px', color: '#94a3b8', fontSize: '0.95rem', pointerEvents: 'none' }}></i>
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   id="adminPassInput"
                   value={pinInput}
-                  onChange={(e) => setPinInput(e.target.value)}
-                  placeholder="Enter PIN (1234) or Password"
+                  onChange={(e) => {
+                    setPinInput(e.target.value);
+                    if (authError) setAuthError('');
+                  }}
+                  placeholder="Enter Password (admin123) or PIN (1234)"
                   required
                   autoFocus
-                  style={{ width: '100%', padding: '12px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '0.95rem' }}
+                  style={{
+                    width: '100%',
+                    padding: '13px 44px 13px 40px',
+                    border: authError ? '1.5px solid #ef4444' : '1.5px solid #cbd5e1',
+                    borderRadius: '10px',
+                    fontSize: '0.95rem',
+                    boxSizing: 'border-box',
+                    background: '#f8fafc',
+                    color: '#0f172a',
+                    transition: 'all 0.2s ease',
+                    outline: 'none'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.background = '#ffffff';
+                    if (!authError) e.target.style.borderColor = 'var(--color-primary)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.background = '#f8fafc';
+                    if (!authError) e.target.style.borderColor = '#cbd5e1';
+                  }}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(prev => !prev)}
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    background: 'none',
+                    border: 'none',
+                    color: '#94a3b8',
+                    cursor: 'pointer',
+                    fontSize: '1rem',
+                    padding: '4px 6px',
+                    borderRadius: '4px'
+                  }}
+                >
+                  <i className={`fa-solid ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                </button>
               </div>
-              {authError && <div style={{ color: '#ef4444', fontSize: '0.82rem', marginTop: '6px', fontWeight: 600 }}>{authError}</div>}
+              {authError && (
+                <div style={{ color: '#ef4444', fontSize: '0.82rem', marginTop: '8px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <i className="fa-solid fa-triangle-exclamation"></i>
+                  <span>{authError}</span>
+                </div>
+              )}
             </div>
 
             <button
@@ -649,55 +710,67 @@ const AdminLayout = () => {
               disabled={authLoading}
               className="auth-btn"
               id="loginSubmitBtn"
-              style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'var(--color-primary)', color: '#fff', border: 'none', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-            >
-              <span>{authLoading ? 'Verifying...' : 'Unlock Back Panel'}</span>
-              <i className="fa-solid fa-arrow-right"></i>
-            </button>
-
-            <button
-              type="button"
-              disabled={authLoading}
-              onClick={async () => {
-                setAuthLoading(true);
-                setAuthError('');
-                await loginAdmin('1234');
-                setAuthLoading(false);
-              }}
               style={{
                 width: '100%',
-                marginTop: '10px',
-                padding: '11px',
-                borderRadius: '8px',
-                background: '#fff',
-                color: 'var(--color-primary)',
-                border: '1.5px solid var(--color-primary)',
-                fontWeight: 600,
-                fontSize: '0.9rem',
-                cursor: 'pointer',
+                padding: '13px',
+                borderRadius: '10px',
+                background: 'var(--color-primary)',
+                color: '#fff',
+                border: 'none',
+                fontWeight: 700,
+                fontSize: '0.96rem',
+                cursor: authLoading ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '8px'
+                gap: '8px',
+                boxShadow: '0 8px 18px rgba(244,63,94,0.28)',
+                opacity: authLoading ? 0.75 : 1,
+                transition: 'all 0.2s ease'
               }}
             >
-              <i className="fa-solid fa-bolt"></i>
-              <span>Quick Demo Unlock (One-Click)</span>
+              {authLoading ? (
+                <>
+                  <i className="fa-solid fa-spinner fa-spin"></i>
+                  <span>Verifying Credentials...</span>
+                </>
+              ) : (
+                <>
+                  <span>Unlock Back Panel</span>
+                  <i className="fa-solid fa-arrow-right"></i>
+                </>
+              )}
             </button>
           </form>
 
-
-          <div className="auth-hints" style={{ marginTop: '20px', padding: '10px', background: '#f8fafc', borderRadius: '8px', fontSize: '0.8rem', color: '#64748b' }}>
-            <i className="fa-solid fa-circle-info"></i> Default PIN: <strong>1234</strong> or Password: <strong>admin123</strong>
+          <div className="auth-hints" style={{ marginTop: '22px', padding: '12px 14px', background: '#f8fafc', borderRadius: '10px', fontSize: '0.82rem', color: '#64748b', border: '1px dashed #cbd5e1', lineHeight: 1.45 }}>
+            <i className="fa-solid fa-shield" style={{ marginRight: '6px', color: 'var(--color-primary)' }}></i>
+            Default PIN: <strong>1234</strong> or Password: <strong>admin123</strong> (Configurable via <code>.env</code>)
           </div>
 
-          <button
-            type="button"
-            onClick={() => navigateTo('home')}
-            style={{ marginTop: '16px', background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: '0.85rem' }}
-          >
-            ← Return to Storefront
-          </button>
+          <div style={{ marginTop: '20px', textAlign: 'center' }}>
+            <button
+              type="button"
+              onClick={() => navigateTo('home')}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#64748b',
+                cursor: 'pointer',
+                fontSize: '0.86rem',
+                fontWeight: 500,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                transition: 'color 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.color = '#0f172a'}
+              onMouseLeave={(e) => e.currentTarget.style.color = '#64748b'}
+            >
+              <i className="fa-solid fa-arrow-left"></i>
+              <span>Return to Storefront</span>
+            </button>
+          </div>
         </div>
       </div>
     );

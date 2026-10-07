@@ -45,6 +45,17 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Serve compiled frontend files if dist exists (Production / Render Web Service)
+const frontendDistPath = path.join(__dirname, '../frontend/dist');
+const fs = require('fs');
+if (fs.existsSync(frontendDistPath)) {
+  app.use(express.static(frontendDistPath));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) return next();
+    res.sendFile(path.join(frontendDistPath, 'index.html'));
+  });
+}
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Server error:', err);

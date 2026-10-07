@@ -76,7 +76,9 @@ async function request(endpoint, options = {}) {
     }
     return data;
   } catch (err) {
-    console.warn(`API Error [${endpoint}]:`, err.message);
+    if (import.meta.env?.DEV) {
+      console.warn(`API Error [${endpoint}]:`, err.message);
+    }
     throw err;
   }
 }
@@ -99,7 +101,7 @@ export const api = {
       }
       return getLocal('products', initialProducts);
     } catch (_err) {
-      console.info('Backend unreachable, using local products cache');
+      if (import.meta.env?.DEV) console.info('Backend unreachable, using local products cache');
       const cached = getLocal('products', null);
       if (!cached || !Array.isArray(cached) || cached.length === 0) {
         setLocal('products', initialProducts);

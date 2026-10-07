@@ -4,7 +4,7 @@ import { defineConfig } from 'vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: './',
+  base: '/',
   build: {
     // Disable source maps in production to hide JSX and source files from DevTools/Inspect
     sourcemap: false,

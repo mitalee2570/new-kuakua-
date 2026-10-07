@@ -28,8 +28,8 @@ const CategoryView = () => {
 
   // Filter & Sort Logic
   const filteredProducts = useMemo(() => {
-    let list = products.filter(p => {
-      if (p.status === 'deactivated') return false;
+    let list = (products || []).filter(p => {
+      if (!p || p.status === 'deactivated') return false;
       if (activeCategorySlug && activeCategorySlug !== 'all') {
         if (p.category !== activeCategorySlug) return false;
       }
@@ -116,7 +116,7 @@ const CategoryView = () => {
                 {(!activeCategorySlug || activeCategorySlug === 'all') && <i className="fa-solid fa-angle-right" style={{ fontSize: '0.7rem' }}></i>}
                 All Collections
               </a>
-              {categories.filter(c => c.status !== 'deactivated').map(cat => (
+              {(categories || []).filter(c => c && c.status !== 'deactivated').map(cat => (
                 <a
                   key={cat.id}
                   href={`#category/${cat.slug}`}

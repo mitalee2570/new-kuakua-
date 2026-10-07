@@ -7,7 +7,7 @@ const HeroBanner = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
-  const activeBanners = banners.filter(b => b.active !== false);
+  const activeBanners = (banners || []).filter(b => b && b.active !== false);
 
   useEffect(() => {
     if (activeBanners.length <= 1 || isPaused) return;

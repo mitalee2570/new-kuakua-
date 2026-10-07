@@ -6,8 +6,8 @@ const LatestProducts = () => {
   const { products } = useStore();
 
   // Sort products to display the newest arrivals first
-  const latestProducts = [...products]
-    .filter(p => p.status !== 'deactivated')
+  const latestProducts = [...(products || [])]
+    .filter(p => p && p.status !== 'deactivated')
     .sort((a, b) => {
       const timeA = a.createdAt ? new Date(a.createdAt).getTime() : (typeof a.id === 'number' && a.id > 100000 ? a.id : 0);
       const timeB = b.createdAt ? new Date(b.createdAt).getTime() : (typeof b.id === 'number' && b.id > 100000 ? b.id : 0);

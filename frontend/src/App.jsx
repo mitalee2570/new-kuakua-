@@ -8,6 +8,7 @@ import Footer from './components/common/Footer';
 import ToastContainer from './components/common/ToastContainer';
 import RefundPolicyModal from './components/common/RefundPolicyModal';
 import CategoryStrip from './components/common/CategoryStrip';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
 // Home Components
 import HeroBanner from './components/home/HeroBanner';
@@ -75,7 +76,7 @@ function App() {
     );
   }
 
-  const selectedProduct = products.find(p => p.id === activeProductId);
+  const selectedProduct = (products || []).find(p => p && p.id === activeProductId);
 
   return (
     <div className="storefront-app-root">
@@ -86,60 +87,62 @@ function App() {
 
       {/* Main View Router */}
       <main className="main-content" id="mainContent">
-        {currentView === 'home' && (
-          <div id="homeView" className="page-view active" style={{ display: 'block' }}>
-            <HeroBanner />
-            <ValueProps />
-            <CategorySlider />
-            <LatestProducts />
-            <FeaturedProducts />
-            <DealCountdown />
-            <PhilosophySection />
-            <ReviewsSection />
-          </div>
-        )}
+        <ErrorBoundary>
+          {currentView === 'home' && (
+            <div id="homeView" className="page-view active" style={{ display: 'block' }}>
+              <HeroBanner />
+              <ValueProps />
+              <CategorySlider />
+              <LatestProducts />
+              <FeaturedProducts />
+              <DealCountdown />
+              <PhilosophySection />
+              <ReviewsSection />
+            </div>
+          )}
 
-        {currentView === 'category' && (
-          <div id="categoryView" className="page-view active" style={{ display: 'block' }}>
-            <CategoryView />
-          </div>
-        )}
+          {currentView === 'category' && (
+            <div id="categoryView" className="page-view active" style={{ display: 'block' }}>
+              <CategoryView />
+            </div>
+          )}
 
-        {currentView === 'details' && (
-          <div id="detailsView" className="page-view active" style={{ display: 'block', padding: '40px 20px' }}>
-            <ProductDetailModal product={selectedProduct} isModal={false} />
-          </div>
-        )}
+          {currentView === 'details' && (
+            <div id="detailsView" className="page-view active" style={{ display: 'block', padding: '40px 20px' }}>
+              <ProductDetailModal product={selectedProduct} isModal={false} />
+            </div>
+          )}
 
-        {currentView === 'wishlist' && (
-          <div id="wishlistView" className="page-view active" style={{ display: 'block' }}>
-            <WishlistView />
-          </div>
-        )}
+          {currentView === 'wishlist' && (
+            <div id="wishlistView" className="page-view active" style={{ display: 'block' }}>
+              <WishlistView />
+            </div>
+          )}
 
-        {currentView === 'contact' && (
-          <div id="contactView" className="page-view active" style={{ display: 'block' }}>
-            <ContactView />
-          </div>
-        )}
+          {currentView === 'contact' && (
+            <div id="contactView" className="page-view active" style={{ display: 'block' }}>
+              <ContactView />
+            </div>
+          )}
 
-        {currentView === 'profile' && (
-          <div id="profileView" className="page-view active" style={{ display: 'block' }}>
-            <ProfileView initialTab="profile" />
-          </div>
-        )}
+          {currentView === 'profile' && (
+            <div id="profileView" className="page-view active" style={{ display: 'block' }}>
+              <ProfileView initialTab="profile" />
+            </div>
+          )}
 
-        {currentView === 'orders' && (
-          <div id="ordersView" className="page-view active" style={{ display: 'block' }}>
-            <ProfileView initialTab="orders" />
-          </div>
-        )}
+          {currentView === 'orders' && (
+            <div id="ordersView" className="page-view active" style={{ display: 'block' }}>
+              <ProfileView initialTab="orders" />
+            </div>
+          )}
 
-        {currentView === 'addresses' && (
-          <div id="addressesView" className="page-view active" style={{ display: 'block' }}>
-            <ProfileView initialTab="addresses" />
-          </div>
-        )}
+          {currentView === 'addresses' && (
+            <div id="addressesView" className="page-view active" style={{ display: 'block' }}>
+              <ProfileView initialTab="addresses" />
+            </div>
+          )}
+        </ErrorBoundary>
       </main>
 
       {/* Footer */}

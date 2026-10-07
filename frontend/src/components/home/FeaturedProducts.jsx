@@ -15,8 +15,8 @@ const FeaturedProducts = () => {
     { key: 'maternity', label: 'Maternity' }
   ];
 
-  const filteredProducts = products.filter(p => {
-    if (p.status === 'deactivated') return false;
+  const filteredProducts = (products || []).filter(p => {
+    if (!p || p.status === 'deactivated') return false;
     if (selectedFilter === 'all') return true;
     return p.category === selectedFilter;
   });

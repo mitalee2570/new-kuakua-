@@ -51,10 +51,12 @@ const Header = () => {
   useEffect(() => {
     if (searchVal.trim().length >= 2) {
       const q = searchVal.toLowerCase();
-      const filtered = products.filter(p =>
-        p.title.toLowerCase().includes(q) ||
-        (p.categoryLabel && p.categoryLabel.toLowerCase().includes(q)) ||
-        (p.shortDesc && p.shortDesc.toLowerCase().includes(q))
+      const filtered = (products || []).filter(p =>
+        p && (
+          (p.title && p.title.toLowerCase().includes(q)) ||
+          (p.categoryLabel && p.categoryLabel.toLowerCase().includes(q)) ||
+          (p.shortDesc && p.shortDesc.toLowerCase().includes(q))
+        )
       ).slice(0, 5);
       setSuggestions(filtered);
       setShowSuggestions(true);

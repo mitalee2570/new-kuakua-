@@ -6,7 +6,7 @@ const CategorySlider = () => {
   const { categories, navigateTo } = useStore();
   const scrollRef = useRef(null);
 
-  const activeCategories = categories.filter(c => c.status !== 'deactivated' && c.showOnHome !== false);
+  const activeCategories = (categories || []).filter(c => c && c.status !== 'deactivated' && c.showOnHome !== false);
 
   const handleScroll = (direction) => {
     if (scrollRef.current) {

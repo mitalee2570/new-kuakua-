@@ -831,7 +831,7 @@ const AdminLayout = () => {
                 { id: 'banners', label: 'Hero Banners', icon: 'fa-images', count: banners.length },
                 { id: 'categories', label: 'Shop by Category', icon: 'fa-layer-group', count: categories.length },
                 { id: 'latest_products', label: 'Our Latest Products', icon: 'fa-sparkles', count: products.length },
-                { id: 'featured_products', label: 'Featured Collections', icon: 'fa-star', count: products.filter(p => p.featured).length },
+                { id: 'featured_products', label: 'Featured Collections', icon: 'fa-star', count: (products || []).filter(p => p && p.featured).length },
                 { id: 'coupons', label: 'Exclusive Deals & Coupons', icon: 'fa-ticket', count: coupons.length }
               ].map(item => (
                 <li key={item.id}>
@@ -881,7 +881,7 @@ const AdminLayout = () => {
               {[
                 { id: 'products', label: 'Products (By Category)', icon: 'fa-boxes-stacked', count: products.length },
                 { id: 'orders', label: 'Orders & Deliveries', icon: 'fa-cart-shopping', count: orders.length },
-                { id: 'inquiries', label: 'Customer Messages', icon: 'fa-comments', count: messages.filter(m => !m.read).length },
+                { id: 'inquiries', label: 'Customer Messages', icon: 'fa-comments', count: (messages || []).filter(m => m && !m.read).length },
                 { id: 'settings', label: 'Store Settings & Backup', icon: 'fa-gear' },
                 { id: 'dashboard', label: 'Dashboard Overview', icon: 'fa-chart-pie' }
               ].map(item => (
@@ -1116,7 +1116,7 @@ const AdminLayout = () => {
                   <span>Category-Wise Filter & Direct Add:</span>
                 </div>
                 <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
-                  Showing {products.filter(p => (!productSearch || p.title.toLowerCase().includes(productSearch.toLowerCase())) && (selectedProductCategory === 'all' || p.category === selectedProductCategory)).length} products
+                  Showing {(products || []).filter(p => p && (!productSearch || (p.title && p.title.toLowerCase().includes(productSearch.toLowerCase()))) && (selectedProductCategory === 'all' || p.category === selectedProductCategory)).length} products
                 </span>
               </div>
 
@@ -1140,7 +1140,7 @@ const AdminLayout = () => {
                   All Categories ({products.length})
                 </button>
                 {categories.map(cat => {
-                  const catCount = products.filter(p => p.category === cat.slug).length;
+                  const catCount = (products || []).filter(p => p && p.category === cat.slug).length;
                   const isSel = selectedProductCategory === cat.slug;
                   return (
                     <button
@@ -1203,9 +1203,10 @@ const AdminLayout = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {products
+                  {(products || [])
                     .filter(p => {
-                      const matchesSearch = !productSearch || p.title.toLowerCase().includes(productSearch.toLowerCase());
+                      if (!p) return false;
+                      const matchesSearch = !productSearch || (p.title && p.title.toLowerCase().includes(productSearch.toLowerCase()));
                       const matchesCategory = selectedProductCategory === 'all' || p.category === selectedProductCategory;
                       return matchesSearch && matchesCategory;
                     })
@@ -1603,9 +1604,9 @@ const AdminLayout = () => {
                 </tr>
               </thead>
               <tbody>
-                {orders
-                  .filter(o => orderStatusFilter === 'all' || o.status === orderStatusFilter)
-                  .filter(o => !orderSearch || o.customerName.toLowerCase().includes(orderSearch.toLowerCase()) || o.id.toLowerCase().includes(orderSearch.toLowerCase()))
+                {(orders || [])
+                  .filter(o => o && (orderStatusFilter === 'all' || o.status === orderStatusFilter))
+                  .filter(o => o && (!orderSearch || (o.customerName && o.customerName.toLowerCase().includes(orderSearch.toLowerCase())) || (o.id && String(o.id).toLowerCase().includes(orderSearch.toLowerCase()))))
                   .map(o => (
                     <tr key={o.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
                       <td style={{ padding: '10px 12px', fontWeight: 600, color: 'var(--color-primary)' }}>{o.id}</td>
@@ -1652,7 +1653,7 @@ const AdminLayout = () => {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
               {categories.map((cat) => {
                 const catImg = getAssetUrl(cat.image);
-                const prodCount = products.filter(p => p.category === cat.slug).length;
+                const prodCount = (products || []).filter(p => p && p.category === cat.slug).length;
                 return (
                   <div key={cat.id || cat.slug} style={{ border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px', display: 'flex', gap: '14px', alignItems: 'center', background: '#f8fafc' }}>
                     <img

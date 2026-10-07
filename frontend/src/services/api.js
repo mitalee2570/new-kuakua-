@@ -12,7 +12,11 @@ function getLocal(key, fallback) {
     const val = localStorage.getItem(`${STORAGE_PREFIX}${key}`);
     if (val) {
       const parsed = JSON.parse(val);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed)) {
+        const cleaned = parsed.filter(item => item && typeof item === 'object');
+        if (cleaned.length > 0) return cleaned;
+        return fallback;
+      }
       if (parsed && typeof parsed === 'object') return parsed;
     }
   } catch (_e) {}
@@ -21,7 +25,8 @@ function getLocal(key, fallback) {
 
 function setLocal(key, data) {
   try {
-    localStorage.setItem(`${STORAGE_PREFIX}${key}`, JSON.stringify(data));
+    const cleanData = Array.isArray(data) ? data.filter(item => item && typeof item === 'object') : data;
+    localStorage.setItem(`${STORAGE_PREFIX}${key}`, JSON.stringify(cleanData));
   } catch (e) {
     console.warn(`Could not save ${key} to localStorage:`, e);
     // If quota exceeded, clean temporary logs/data and retry
@@ -86,9 +91,13 @@ export const api = {
       const query = new URLSearchParams(params).toString();
       const data = await request(`/products${query ? `?${query}` : ''}`);
       if (Array.isArray(data) && data.length > 0) {
-        setLocal('products', data);
+        const cleaned = data.filter(p => p && typeof p === 'object');
+        if (cleaned.length > 0) {
+          setLocal('products', cleaned);
+          return cleaned;
+        }
       }
-      return data;
+      return getLocal('products', initialProducts);
     } catch (_err) {
       console.info('Backend unreachable, using local products cache');
       const cached = getLocal('products', null);
@@ -247,8 +256,14 @@ export const api = {
   getCategories: async () => {
     try {
       const data = await request('/categories');
-      if (Array.isArray(data) && data.length > 0) setLocal('categories', data);
-      return data;
+      if (Array.isArray(data) && data.length > 0) {
+        const cleaned = data.filter(c => c && typeof c === 'object');
+        if (cleaned.length > 0) {
+          setLocal('categories', cleaned);
+          return cleaned;
+        }
+      }
+      return getLocal('categories', initialCategories);
     } catch (_err) {
       return getLocal('categories', initialCategories);
     }
@@ -296,8 +311,14 @@ export const api = {
   getBanners: async () => {
     try {
       const data = await request('/banners');
-      if (Array.isArray(data) && data.length > 0) setLocal('banners', data);
-      return data;
+      if (Array.isArray(data) && data.length > 0) {
+        const cleaned = data.filter(b => b && typeof b === 'object');
+        if (cleaned.length > 0) {
+          setLocal('banners', cleaned);
+          return cleaned;
+        }
+      }
+      return getLocal('banners', initialBanners);
     } catch (_err) {
       return getLocal('banners', initialBanners);
     }

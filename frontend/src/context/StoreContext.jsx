@@ -143,14 +143,17 @@ export const StoreProvider = ({ children }) => {
         api.getSettings()
       ]);
 
-      if (prodsData.status === 'fulfilled' && Array.isArray(prodsData.value) && prodsData.value.length > 0) {
-        setProducts(prodsData.value);
+      if (prodsData.status === 'fulfilled' && Array.isArray(prodsData.value)) {
+        const cleanProds = prodsData.value.filter(p => p && typeof p === 'object');
+        if (cleanProds.length > 0) setProducts(cleanProds);
       }
-      if (catsData.status === 'fulfilled' && Array.isArray(catsData.value) && catsData.value.length > 0) {
-        setCategories(catsData.value);
+      if (catsData.status === 'fulfilled' && Array.isArray(catsData.value)) {
+        const cleanCats = catsData.value.filter(c => c && typeof c === 'object');
+        if (cleanCats.length > 0) setCategories(cleanCats);
       }
-      if (bannersData.status === 'fulfilled' && Array.isArray(bannersData.value) && bannersData.value.length > 0) {
-        setBanners(bannersData.value);
+      if (bannersData.status === 'fulfilled' && Array.isArray(bannersData.value)) {
+        const cleanBanners = bannersData.value.filter(b => b && typeof b === 'object');
+        if (cleanBanners.length > 0) setBanners(cleanBanners);
       }
       if (settingsData.status === 'fulfilled' && settingsData.value) {
         setSettings(prev => ({ ...prev, ...settingsData.value }));

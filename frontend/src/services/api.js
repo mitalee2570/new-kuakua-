@@ -60,6 +60,11 @@ async function request(endpoint, options = {}) {
       headers
     });
 
+    const contentType = res.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      throw new Error(`Endpoint returned non-JSON response (${res.status})`);
+    }
+
     const data = await res.json().catch(() => null);
     if (!res.ok) {
       throw new Error((data && data.message) || `HTTP error! status: ${res.status}`);

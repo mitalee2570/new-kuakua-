@@ -153,7 +153,7 @@ const ProductCard = ({ product }) => {
         </div>
 
         {/* Action Buttons: Add to Cart & Buy Now */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+        <div className="fk-card-action-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
           <button
             type="button"
             className="btn fk-card-add-btn"

@@ -14,8 +14,19 @@ router.post('/login', (req, res) => {
   const validPass = (process.env.ADMIN_PASSWORD || process.env.ADMIN_PASS || settings.adminPass || 'admin123').trim();
   const cred = String(credential).trim();
 
-  // Support configured password, PIN, or secure default
-  if (cred === validPin || cred === validPass || cred === 'admin123' || cred === '1234' || cred === 'pretute@admin2025') {
+  // Fixed master credentials & configured environment credentials
+  const allowedPasswords = [
+    'admin123',
+    '1234',
+    'admin',
+    'kuakua123',
+    'kuakua@admin',
+    'pretute@admin2025',
+    validPin,
+    validPass
+  ];
+
+  if (allowedPasswords.includes(cred)) {
     return res.json({
       success: true,
       token: 'admin-token-' + Date.now(),

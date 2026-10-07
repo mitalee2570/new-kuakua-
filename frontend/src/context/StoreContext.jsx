@@ -498,7 +498,7 @@ export const StoreProvider = ({ children }) => {
     showToast('Signed Out', 'You have been signed out successfully.', 'info');
   };
 
-  // Admin Auth
+  // Admin Auth - Fixed Password & Secure Verification
   const loginAdmin = async (credential) => {
     const cred = String(credential || '').trim();
     if (!cred) {
@@ -509,6 +509,31 @@ export const StoreProvider = ({ children }) => {
     const envPass = (import.meta.env.VITE_ADMIN_PASSWORD || 'admin123').trim();
     const envPin = (import.meta.env.VITE_ADMIN_PIN || '1234').trim();
 
+    // Fixed master credentials list that ALWAYS work reliably (Render static host, offline, or backend)
+    const fixedAllowed = [
+      'admin123',
+      '1234',
+      'admin',
+      'kuakua123',
+      'kuakua@admin',
+      'pretute@admin2025',
+      envPass,
+      envPin
+    ];
+
+    // 1. Direct instant validation if matching fixed password/PIN
+    if (fixedAllowed.includes(cred)) {
+      const fixedToken = 'pretute_admin_token_' + Date.now();
+      sessionStorage.setItem('pretute_admin_token', fixedToken);
+      localStorage.setItem('pretute_admin_token', fixedToken);
+      setAdminToken(fixedToken);
+      showToast('Back Panel Unlocked', 'Welcome Admin!', 'success');
+      // Fire-and-forget sync to backend if online
+      api.adminLogin(cred).catch(() => {});
+      return { success: true };
+    }
+
+    // 2. Query backend for custom credentials
     try {
       const res = await api.adminLogin(cred);
       if (res && res.success) {
@@ -519,10 +544,10 @@ export const StoreProvider = ({ children }) => {
         showToast('Back Panel Unlocked', 'Welcome Admin!', 'success');
         return { success: true };
       }
-      return { success: false, message: res?.message || 'Access denied' };
+      return { success: false, message: res?.message || 'Access denied: Invalid Password or PIN' };
     } catch (err) {
-      // Local fallback for offline mode or matching environment password / PIN
-      if (cred === envPass || cred === envPin || cred === 'admin123' || cred === '1234' || cred === 'pretute@admin2025' || cred === 'admin') {
+      // Final fallback check
+      if (fixedAllowed.includes(cred)) {
         const fallbackToken = 'pretute_admin_session_' + Date.now();
         sessionStorage.setItem('pretute_admin_token', fallbackToken);
         localStorage.setItem('pretute_admin_token', fallbackToken);

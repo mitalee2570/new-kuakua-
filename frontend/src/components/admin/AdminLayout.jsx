@@ -743,9 +743,9 @@ const AdminLayout = () => {
             </button>
           </form>
 
-          <div className="auth-hints" style={{ marginTop: '22px', padding: '12px 14px', background: '#f8fafc', borderRadius: '10px', fontSize: '0.82rem', color: '#64748b', border: '1px dashed #cbd5e1', lineHeight: 1.45 }}>
-            <i className="fa-solid fa-shield" style={{ marginRight: '6px', color: 'var(--color-primary)' }}></i>
-            Default PIN: <strong>1234</strong> or Password: <strong>admin123</strong> (Configurable via <code>.env</code>)
+          <div className="auth-hints" style={{ marginTop: '22px', padding: '12px 14px', background: '#f8fafc', borderRadius: '10px', fontSize: '0.84rem', color: '#475569', border: '1px dashed #cbd5e1', lineHeight: 1.5 }}>
+            <i className="fa-solid fa-key" style={{ marginRight: '6px', color: 'var(--color-primary)' }}></i>
+            Fixed Admin Password: <strong style={{ color: '#0f172a' }}>admin123</strong> &bull; Fixed PIN: <strong style={{ color: '#0f172a' }}>1234</strong>
           </div>
 
           <div style={{ marginTop: '20px', textAlign: 'center' }}>
@@ -952,7 +952,7 @@ const AdminLayout = () => {
               type="button"
               className="mobile-toggle-btn"
               onClick={() => setMobileSidebarOpen(prev => !prev)}
-              style={{ background: '#1A253C', color: '#fff', border: 'none', borderRadius: '6px', width: '38px', height: '38px', cursor: 'pointer', display: 'none' }}
+              style={{ background: '#1A253C', color: '#fff', border: 'none', borderRadius: '6px', width: '38px', height: '38px', cursor: 'pointer' }}
               title="Toggle Menu"
             >
               <i className="fa-solid fa-bars"></i>
@@ -1071,34 +1071,36 @@ const AdminLayout = () => {
             {/* Recent Orders Overview */}
             <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '20px' }}>
               <h3 style={{ margin: '0 0 16px 0', fontSize: '1.1rem', color: '#1A253C' }}>Recent Orders</h3>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
-                <thead>
-                  <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', textAlign: 'left', color: '#64748b' }}>
-                    <th style={{ padding: '10px 12px' }}>Order ID</th>
-                    <th style={{ padding: '10px 12px' }}>Customer</th>
-                    <th style={{ padding: '10px 12px' }}>Items</th>
-                    <th style={{ padding: '10px 12px' }}>Total</th>
-                    <th style={{ padding: '10px 12px' }}>Payment</th>
-                    <th style={{ padding: '10px 12px' }}>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orders.slice(0, 5).map(o => (
-                    <tr key={o.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                      <td style={{ padding: '10px 12px', fontWeight: 600, color: 'var(--color-primary)' }}>{o.id}</td>
-                      <td style={{ padding: '10px 12px' }}>{o.customerName}</td>
-                      <td style={{ padding: '10px 12px' }}>{o.items?.length || 1} items</td>
-                      <td style={{ padding: '10px 12px', fontWeight: 600 }}>₹{Math.round(o.total).toLocaleString()}</td>
-                      <td style={{ padding: '10px 12px' }}>{o.paymentMethod}</td>
-                      <td style={{ padding: '10px 12px' }}>
-                        <span style={{ padding: '3px 8px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 700, background: o.status === 'Delivered' ? '#ECFDF5' : o.status === 'Shipped' ? '#EFF6FF' : '#FEF3C7', color: o.status === 'Delivered' ? '#047857' : o.status === 'Shipped' ? '#1D4ED8' : '#B45309' }}>
-                          {o.status}
-                        </span>
-                      </td>
+              <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
+                  <thead>
+                    <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', textAlign: 'left', color: '#64748b' }}>
+                      <th style={{ padding: '10px 12px' }}>Order ID</th>
+                      <th style={{ padding: '10px 12px' }}>Customer</th>
+                      <th style={{ padding: '10px 12px' }}>Items</th>
+                      <th style={{ padding: '10px 12px' }}>Total</th>
+                      <th style={{ padding: '10px 12px' }}>Payment</th>
+                      <th style={{ padding: '10px 12px' }}>Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {orders.slice(0, 5).map(o => (
+                      <tr key={o.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '10px 12px', fontWeight: 600, color: 'var(--color-primary)' }}>{o.id}</td>
+                        <td style={{ padding: '10px 12px' }}>{o.customerName}</td>
+                        <td style={{ padding: '10px 12px' }}>{o.items?.length || 1} items</td>
+                        <td style={{ padding: '10px 12px', fontWeight: 600 }}>₹{Math.round(o.total).toLocaleString()}</td>
+                        <td style={{ padding: '10px 12px' }}>{o.paymentMethod}</td>
+                        <td style={{ padding: '10px 12px' }}>
+                          <span style={{ padding: '3px 8px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 700, background: o.status === 'Delivered' ? '#ECFDF5' : o.status === 'Shipped' ? '#EFF6FF' : '#FEF3C7', color: o.status === 'Delivered' ? '#047857' : o.status === 'Shipped' ? '#1D4ED8' : '#B45309' }}>
+                            {o.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}

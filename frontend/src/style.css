@@ -5736,4 +5736,50 @@ html {
         padding: 8px !important;
     }
 }
+
+/* ==========================================================================
+   MOBILE & MULTI-DEVICE ULTRA-SMOOTH RESPONSIVE REFINEMENTS
+   ========================================================================== */
+@media (max-width: 576px) {
+    .fk-card-action-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 6px !important;
+    }
+
+    .fk-card-add-btn,
+    .fk-card-buy-btn {
+        padding: 7px 4px !important;
+        font-size: 0.74rem !important;
+        gap: 3px !important;
+    }
+
+    .fk-card-price-row {
+        gap: 5px !important;
+        margin-bottom: 8px !important;
+    }
+
+    .fk-card-price-row span:first-child {
+        font-size: 1.08rem !important;
+    }
+
+    .prod-info {
+        padding: 10px 10px 12px !important;
+    }
+
+    .prod-title {
+        font-size: 0.88rem !important;
+        margin: 2px 0 6px 0 !important;
+    }
+}
+
+@media (max-width: 380px) {
+    .fk-card-action-grid {
+        grid-template-columns: 1fr !important;
+        gap: 5px !important;
+    }
+
+    .products-grid {
+        gap: 8px !important;
+    }
+}
 
